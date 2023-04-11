@@ -10,21 +10,24 @@
 #include <cctype>
 #include "constants.h"
 
+// ћакросы дл€ быстрого преобразовани€
+#define to_key(x) static_cast<Keys>(x)
+#define to_int(x) static_cast<int>(x)
 
-enum Keys
+enum class Keys
 {
-    KEY_ARROW_UP = 72,
-    KEY_ARROW_LEFT = 75,
-    KEY_ARROW_BACK = 80,
-    KEY_ARROW_RIGHT = 77,
-    KEY_ESC = 27,
+    ARROW_UP    = 72,
+    ARROW_LEFT  = 75,
+    ARROW_BACK  = 80,
+    ARROW_RIGHT = 77,
+    ESC         = 27,
 };
 
-enum Objects
+enum class Objects
 {
-    OBJECT_WALL = 1,
-    OBJECT_ACCESS = 0,
-    OBJECT_HERO = 5,
+    WALL  = 1,
+    EMPTY = 0,
+    HERO  = 5,
 };
 
 class Labirint
@@ -32,8 +35,8 @@ class Labirint
 private:
     int m_labirint[str][tab];
     std::fstream m_f;
-public:
 
+public:
 
     Labirint(std::string filename = "labirint.txt")
         :m_f{filename}
@@ -117,23 +120,23 @@ public:
     std::string walk(int &ax, int &ay)
     {
         std::string msg;
-        char key;
+        Keys key;
             
         // —читывание с клавиатуры напр€мую без Enter
-        key = _getch();
-        if (key == -32)
+        key = to_key(_getch());
+        if (key == to_key(-32))
         {
-            key = _getch();
-            key = toupper(key);
+            key = to_key(_getch());
+            key = to_key(toupper(static_cast<char>(key)));
         }
 
-        if (key == KEY_ARROW_UP)
+        if (key == Keys::ARROW_UP)
         {
-            if (m_labirint[ax - 1][ay] == OBJECT_ACCESS)
+            if (m_labirint[ax - 1][ay] == to_int(Objects::EMPTY))
             {
-                m_labirint[ax][ay] = OBJECT_ACCESS;
+                m_labirint[ax][ay] = to_int(Objects::EMPTY);
                 ax = ax - 1;
-                m_labirint[ax][ay] = OBJECT_HERO;
+                m_labirint[ax][ay] = to_int(Objects::HERO);
             }
             else
             {
@@ -141,13 +144,13 @@ public:
             }
         }
         
-        else if (key == KEY_ARROW_LEFT)
+        else if (key == Keys::ARROW_LEFT)
         {
-            if (m_labirint[ax][ay - 1] == OBJECT_ACCESS)
+            if (m_labirint[ax][ay - 1] == to_int(Objects::EMPTY))
             {
-                m_labirint[ax][ay] = OBJECT_ACCESS;
+                m_labirint[ax][ay] = to_int(Objects::EMPTY);
                 ay = ay - 1;
-                m_labirint[ax][ay] = OBJECT_HERO;
+                m_labirint[ax][ay] = to_int(Objects::HERO);
             }
             else
             {
@@ -155,13 +158,13 @@ public:
             }
         }
         
-        else if (key == KEY_ARROW_BACK)
+        else if (key == Keys::ARROW_BACK)
         {
-            if (m_labirint[ax + 1][ay] == OBJECT_ACCESS)
+            if (m_labirint[ax + 1][ay] == to_int(Objects::EMPTY))
             {
-                m_labirint[ax][ay] = OBJECT_ACCESS;
+                m_labirint[ax][ay] = to_int(Objects::EMPTY);
                 ax = ax + 1;
-                m_labirint[ax][ay] = OBJECT_HERO;
+                m_labirint[ax][ay] = to_int(Objects::HERO);
             }
             else
             {
@@ -169,13 +172,13 @@ public:
             }
         }
         
-        else if (key == KEY_ARROW_RIGHT)
+        else if (key == Keys::ARROW_RIGHT)
         {
-            if (m_labirint[ax][ay + 1] == OBJECT_ACCESS)
+            if (m_labirint[ax][ay + 1] == to_int(Objects::EMPTY))
             {
-                m_labirint[ax][ay] = OBJECT_ACCESS;
+                m_labirint[ax][ay] = to_int(Objects::EMPTY);
                 ay = ay + 1;
-                m_labirint[ax][ay] = OBJECT_HERO;
+                m_labirint[ax][ay] = to_int(Objects::HERO);
             }
             else
             {
@@ -183,7 +186,7 @@ public:
             }
         }
         
-        else if (key == KEY_ESC)
+        else if (key == Keys::ESC)
         {
             msg = "esc";
         }
