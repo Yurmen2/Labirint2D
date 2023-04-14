@@ -1,7 +1,6 @@
 // Labirint - Программа, создающая 2д лабиринт в двумерном массиве.
 // Генерирует лабиринт(размеры указываются переменными str и tab в constants.h)
-// Предлагает возможные действия с ним(*= в разработке): 
-// 1*)Найти возможные выходы из А в В 2*) Найти все выходы из А 3*)Найти самый короткий выход из А в В 4) режим прогулки(в перспективе мини-игра) 
+// Предлагает возможные действия с ним 
 
 #include <iostream>
 #include <fstream>
@@ -80,7 +79,8 @@ public:
             exit(-1);
         }
     }
-
+   
+    // создание случайного лабиринта: стены и проходы
     void create()
     {
         for (int i = 0; i < str; i++)
@@ -92,6 +92,7 @@ public:
         }
     }
 
+    // Вывод изображения лабиринта
     void print()
     {
         for (int i = 0; i < str; i++)
@@ -145,6 +146,67 @@ public:
     void setPoint(int& ax, int& ay, const Objects object)
     {
         m_labirint[ax][ay] = object;
+    }
+
+    // Спрашивает пользователя, нужно ли сгенерировать новый лабиринт
+    bool genNew()
+    {   
+        while(true)
+        {
+            system("cls");
+            print();
+
+            std::cout << "Generate a new maze? Y/N:";
+
+            char ch;
+            std::cin >> ch;
+            ch = toupper(ch);
+
+            switch (ch)
+            {
+            case 'Y':
+                create();
+                std::cin.ignore(32767, '\n');
+                return true;
+
+            case 'N':
+                std::cin.ignore(32767, '\n');
+                return false;
+
+            default:
+                std::cin.ignore(32767, '\n');
+                break;
+            }
+        }
+    }
+
+    // Спрашивает пользователя, сохранить ли получившийся лабиринт
+    bool saveNew()
+    {
+        while (true)
+        {
+            system("cls");
+            print();
+
+            std::cout << "Save maze in file? Y/N:";
+
+            char ch;
+            std::cin >> ch;
+            ch = toupper(ch);
+
+            switch (ch)
+            {
+            case 'Y':
+                inFile();
+            case 'N':
+                std::cin.ignore(32767, '\n');
+                return false; // Умышленный fall-through: кейс N не выполняет никакой задачи
+
+            default:
+                std::cin.ignore(32767, '\n');
+                break;
+            }
+        }
     }
 
     std::string walk(int &ax, int &ay)
@@ -226,28 +288,6 @@ public:
 
 };
 
-//получение символьного значения в виде цифры с обработкой ввода 
-char inputChar_YN()
-{
-    while (true) 
-    {
-        char choice;
-        std::cin >> choice;
-        choice = toupper(choice);
-        if (choice == 'Y' || choice == 'N')
-        {
-            std::cin.ignore(32767, '\n');
-            return choice;
-        }
-        else
-        {
-            std::cin.clear();
-            std::cin.ignore(32767, '\n');
-            std::cout << "Incorrect enter. Retry again.\n";
-        }
-    }
-}
-
 // получение целочисленного значения с обработкой ввода
 int inputNum(int limit = 0)
 {
@@ -295,6 +335,7 @@ int main()
     Labirint labirint;
 
     // Меню загрузки лабиринта
+    backToMenu:
     bool isChoiceLabirint = true;
     while (isChoiceLabirint)
     {
@@ -311,48 +352,20 @@ int main()
             labirint.outFile();
             isChoiceLabirint = false;
             break;
+
         case 2:
             labirint.create();
 
-            char ch;
             bool isChoice;
             isChoice = true;
+            
             while (isChoice)
-            {
-                system("cls");
-                labirint.print();
-                std::cout << "Generate a new maze? Y/N:";
-                std::cin >> ch;
-                ch = toupper(ch);
-                switch (ch)
-                {
-                case 'Y':
-                    labirint.create();
-                    break;
-                case 'N':
-                    isChoice = false;
-                    break;
-                }
-            }
+                isChoice = labirint.genNew();
 
             isChoice = true;
             while (isChoice)
-            {
-                system("cls");
-                labirint.print();
-                std::cout << "Save maze in file? Y/N:";
+                isChoice = labirint.saveNew();
 
-                std::cin >> ch;
-                ch = toupper(ch);
-                switch (ch)
-                {
-                case 'Y':
-                    labirint.inFile();
-                case 'N':
-                    isChoice = false; // Умышленный fall-through: кейс N не выполняет никакой задачи
-                    break;
-                }
-            }
             isChoiceLabirint = false;
             break;
         }
@@ -362,39 +375,27 @@ int main()
     {
         system("cls");
         labirint.print();
-        std::cout << "\n\n1)find way from A to B\n2)find all exit's from A\n3)find shortest way from A to B\n4)Walk in labirint\n5)Close the program\n\n";
+
+        std::cout << "\nLabirint2D\n";
+        std::cout << "1)Start game\n" <<
+                     "2)Maze menu\n" <<
+                     "3)Exit\n";
+        
         std::cout << "Enter a option: ";
-        char choice = inputNum(5);
+        char choice = inputNum(3);
 
-
-        int ax, ay;
         std::string msg;
-        bool isWalk = false;
         switch (choice)
         {
         case 1:
-            std::cout << "Enter point A(x,y): ";
-            ax = inputNum();
-            ay = inputNum();
+            int ax, ay;
 
-            std::cout << "Enter point B(x,y): ";
-            int bx, by;
-            bx = inputNum();
-            by = inputNum();
-
-            system("pause");
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
             std::cout << "Enter start point(x,y): ";
             ax = inputNum();
             ay = inputNum();
+
             labirint.setPoint(ax, ay, Objects::HERO);
-            isWalk = true;
-            while (isWalk)
+            while (true)
             {
                 system("cls");
                 labirint.print();
@@ -404,10 +405,11 @@ int main()
                     exit(0);
             }
             break;
-        case 5:
+        case 2:
+            system("cls");
+            goto backToMenu;
+        case 3:
             exit(0);
-        default:
-            std::cerr << "Unknown error.\n";
         }
     }
 
