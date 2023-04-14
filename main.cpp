@@ -36,6 +36,60 @@ static int object_id[]
     '*',
 };
 
+struct Point
+{
+    int x;
+    int y;
+};
+
+// получение целочисленного значения с обработкой ввода
+int inputNum(int limit = 0)
+{
+    while (true)
+    {
+        int num;
+        std::cin >> num;
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(32767, '\n');
+            std::cout << "Incorrect enter. Retry again.\n";
+        }
+        else if (limit > 0)
+        {
+            if (num >= 0 && num <= limit)
+            {
+                std::cin.ignore(32767, '\n');
+                return num;
+            }
+            else
+            {
+                std::cin.ignore(32767, '\n');
+                std::cout << "Incorrect enter. Retry again.\n";
+            }
+        }
+        else if (num >= 0)
+        {
+            std::cin.ignore(32767, '\n');
+            return num;
+
+        }
+        else
+        {
+            std::cin.ignore(32767, '\n');
+            std::cout << "Incorrect enter. Retry again.\n";
+        }
+    }
+}
+
+void inputPoint(Point& point)
+{
+    std::cout << "x:";
+    point.x = inputNum();
+    std::cout << "y: ";
+    point.y = inputNum();
+}
+
 
 std::string stringObject(Objects object)
 {
@@ -112,7 +166,7 @@ public:
         }
         for (int a = 0; a < str + 2; a++)
             std::cout << "~ ";
-        std::cout << '\n';
+        std::cout << "\n\n";
     }
 
     // Записать данные лабиринта в файл
@@ -143,9 +197,9 @@ public:
     }
 
     // Установить определенной точке в лабиринте значение value
-    void setPoint(int& ax, int& ay, const Objects object)
+    void setPoint(const Point& p, const Objects object)
     {
-        m_labirint[ax][ay] = object;
+        m_labirint[p.x][p.y] = object;
     }
 
     // Спрашивает пользователя, нужно ли сгенерировать новый лабиринт
@@ -209,7 +263,65 @@ public:
         }
     }
 
-    std::string walk(int &ax, int &ay)
+    bool mazeMenu(bool isLabirintLoaded)
+    {
+        while (true)
+        {
+            system("cls");
+
+            if (isLabirintLoaded)
+                print();
+
+            std::cout << "Labirint2D\n";
+            std::cout << "1)Load maze from file.\n" <<
+                         "2)Create maze.\n";
+            
+            if (isLabirintLoaded)
+                std::cout << "3)Back to main menu.\n";
+            
+            std::cout << "Enter a option: ";
+
+            int choice;
+            
+            if (!isLabirintLoaded)
+                choice = inputNum(2);
+            else
+                choice = inputNum(3);
+
+            switch (choice)
+            {
+            case 1:
+                if (isLabirintLoaded)
+                    return true;
+                else
+                {
+                    outFile();
+                    return true;
+                }
+            case 2:
+                create();
+
+                bool isChoice;
+                isChoice = true;
+
+                while (isChoice)
+                    isChoice = genNew();
+
+                isChoice = true;
+                while (isChoice)
+                    isChoice = saveNew();
+
+                return true;
+            case 3:
+                return true;
+            default:
+                std::cin.ignore(32767, '\n');
+                break;
+            }
+        }
+    }
+
+    std::string walk(Point& p)
     {
         std::string msg;
         Keys key;
@@ -224,11 +336,11 @@ public:
 
         if (key == Keys::ARROW_UP)
         {
-            if (m_labirint[ax - 1][ay] == Objects::EMPTY)
+            if (m_labirint[p.x - 1][p.y] == Objects::EMPTY)
             {
-                m_labirint[ax][ay] = Objects::EMPTY;
-                ax = ax - 1;
-                m_labirint[ax][ay] = Objects::HERO;
+                m_labirint[p.x][p.y] = Objects::EMPTY;
+                p.x = p.x - 1;
+                m_labirint[p.x][p.y] = Objects::HERO;
             }
             else
             {
@@ -238,11 +350,11 @@ public:
         
         else if (key == Keys::ARROW_LEFT)
         {
-            if (m_labirint[ax][ay - 1] == Objects::EMPTY)
+            if (m_labirint[p.x][p.y - 1] == Objects::EMPTY)
             {
-                m_labirint[ax][ay] = Objects::EMPTY;
-                ay = ay - 1;
-                m_labirint[ax][ay] = Objects::HERO;
+                m_labirint[p.x][p.y] = Objects::EMPTY;
+                p.y = p.y - 1;
+                m_labirint[p.x][p.y] = Objects::HERO;
             }
             else
             {
@@ -252,11 +364,11 @@ public:
         
         else if (key == Keys::ARROW_BACK)
         {
-            if (m_labirint[ax + 1][ay] == Objects::EMPTY)
+            if (m_labirint[p.x + 1][p.y] == Objects::EMPTY)
             {
-                m_labirint[ax][ay] = Objects::EMPTY;
-                ax = ax + 1;
-                m_labirint[ax][ay] = Objects::HERO;
+                m_labirint[p.x][p.y] = Objects::EMPTY;
+                p.x = p.x + 1;
+                m_labirint[p.x][p.y] = Objects::HERO;
             }
             else
             {
@@ -266,11 +378,11 @@ public:
         
         else if (key == Keys::ARROW_RIGHT)
         {
-            if (m_labirint[ax][ay + 1] == Objects::EMPTY)
+            if (m_labirint[p.x][p.y + 1] == Objects::EMPTY)
             {
-                m_labirint[ax][ay] = Objects::EMPTY;
-                ay = ay + 1;
-                m_labirint[ax][ay] = Objects::HERO;
+                m_labirint[p.x][p.y] = Objects::EMPTY;
+                p.y = p.y + 1;
+                m_labirint[p.x][p.y] = Objects::HERO;
             }
             else
             {
@@ -288,127 +400,70 @@ public:
 
 };
 
-// получение целочисленного значения с обработкой ввода
-int inputNum(int limit = 0)
-{
-    while (true)
-    {
-        int num;
-        std::cin >> num;
-        if (std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(32767, '\n');
-            std::cout << "Incorrect enter. Retry again.\n";
-        }
-        else if (limit > 0)
-        {
-            if (num >= 0 && num <= limit)
-            {
-                std::cin.ignore(32767, '\n');
-                return num;
-            }
-            else
-            {
-                std::cin.ignore(32767, '\n');
-                std::cout << "Incorrect enter. Retry again.\n";
-            }
-        }
-        else if (num >= 0)
-        {
-            std::cin.ignore(32767, '\n');
-            return num;
-
-        }
-        else
-        {
-            std::cin.ignore(32767, '\n');
-            std::cout << "Incorrect enter. Retry again.\n";
-        }
-    }
-}
-
 int main()
 {
     srand(static_cast<unsigned int>(time(NULL)));
-
+    rand();
     Labirint labirint;
 
-    // Меню загрузки лабиринта
+    bool isLabirintLoaded = false;
+    std::string msg = "";
+
     backToMenu:
-    bool isChoiceLabirint = true;
-    while (isChoiceLabirint)
-    {
-        std::cout << "Labirint2D\n";
-        std::cout << "1)Load maze from file.\n" <<
-                     "2)Create maze.\n";
-        std::cout << "Enter a option: ";
-
-        int choice = inputNum(2);
-
-        switch (choice)
-        {
-        case 1:
-            labirint.outFile();
-            isChoiceLabirint = false;
-            break;
-
-        case 2:
-            labirint.create();
-
-            bool isChoice;
-            isChoice = true;
-            
-            while (isChoice)
-                isChoice = labirint.genNew();
-
-            isChoice = true;
-            while (isChoice)
-                isChoice = labirint.saveNew();
-
-            isChoiceLabirint = false;
-            break;
-        }
-    }
-
     while (true)
     {
-        system("cls");
-        labirint.print();
 
-        std::cout << "\nLabirint2D\n";
+        system("cls");
+        if (isLabirintLoaded)
+            labirint.print();
+        
+        std::cout << "Labirint2D\n";
         std::cout << "1)Start game\n" <<
                      "2)Maze menu\n" <<
-                     "3)Exit\n";
-        
-        std::cout << "Enter a option: ";
-        char choice = inputNum(3);
+                     "3)Settings\n" << 
+                     "4)Exit\n";
+        std::cout << msg;
 
-        std::string msg;
+        std::cout << "Enter a option: ";
+        char choice = inputNum(4);
+
         switch (choice)
         {
         case 1:
-            int ax, ay;
-
-            std::cout << "Enter start point(x,y): ";
-            ax = inputNum();
-            ay = inputNum();
-
-            labirint.setPoint(ax, ay, Objects::HERO);
-            while (true)
+            if (!isLabirintLoaded)
+                msg = "\nTo start, load the maze in Maze menu\n";
+            else
             {
                 system("cls");
                 labirint.print();
-                std::cout << msg;
-                msg = labirint.walk(ax, ay);
-                if (msg == "esc")
-                    exit(0);
+                std::cout << "Enter start point(x, y): \n";
+                Point point {};
+
+                inputPoint(point);
+
+                labirint.setPoint(point, Objects::HERO);
+                while (true)
+                {
+                    system("cls");
+                    labirint.print();
+                    std::cout << msg;
+                    msg = labirint.walk(point);
+                    if (msg == "esc")
+                    {
+                        msg = "";
+                        labirint.setPoint(point, Objects::EMPTY);
+                        goto backToMenu;
+                    }
+                }
             }
             break;
         case 2:
-            system("cls");
-            goto backToMenu;
+           isLabirintLoaded = labirint.mazeMenu(isLabirintLoaded);
+           msg = "";
+           break;
         case 3:
+            break;
+        case 4:
             exit(0);
         }
     }
