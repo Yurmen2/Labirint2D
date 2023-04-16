@@ -4,9 +4,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <cctype>
+#include <Windows.h>
 #include <time.h>
 #include <conio.h>
-#include <cctype>
 #include "constants.h"
 
 // Макросы для быстрого преобразования
@@ -84,7 +85,7 @@ int inputNum(int limit = 0)
 
 void inputPoint(Point& point)
 {
-    std::cout << "x:";
+    std::cout << "x: ";
     point.x = inputNum();
     std::cout << "y: ";
     point.y = inputNum();
@@ -108,6 +109,44 @@ std::string stringObject(Objects object)
     }
 
     return stringObject;
+}
+
+void cursorHide(HANDLE hConsole)
+{
+    CONSOLE_CURSOR_INFO cci;
+    GetConsoleCursorInfo(hConsole, &cci);
+        
+    cci.bVisible = false;
+    SetConsoleCursorInfo(hConsole, &cci);
+}
+
+
+//struct strCoord
+//{
+//    std::string str;
+//    SHORT centerX;
+//    SHORT centerY;
+//    SHORT offsetX = 0;
+//    SHORT offsetY = 0;
+//};
+
+// Напечатать строку в позиции курсора от центра
+void printStrCenter(HANDLE hConsole, std::string str, SHORT centerX, SHORT centerY, SHORT offsetX = 0, SHORT offsetY = 0)
+{
+    COORD cPos;
+    cPos = { static_cast<SHORT>(centerX - (str.length() / 2) + offsetX), static_cast<SHORT>(centerY + offsetY) };
+    SetConsoleCursorPosition(hConsole, cPos);
+    std::cout << str;
+}
+
+// Считывание с клавиатуры напрямую без Enter
+char directInput()
+{
+    char ch = _getch();
+    if(ch == 0xE0 || ch == -32)
+        ch = _getch();
+    ch = toupper(ch);
+    return ch;
 }
 
 class Labirint
@@ -196,74 +235,53 @@ public:
         }
     }
 
-    // Установить определенной точке в лабиринте значение value
-    void setPoint(const Point& p, const Objects object)
-    {
-        m_labirint[p.x][p.y] = object;
-    }
-
     // Спрашивает пользователя, нужно ли сгенерировать новый лабиринт
-    bool genNew()
+    bool genNew(HANDLE hConsole, SHORT centerX, SHORT centerY)
     {   
         while(true)
         {
             system("cls");
             print();
 
-            std::cout << "Generate a new maze? Y/N:";
+            std::string str = "Generate a new maze? Y/N";
+            printStrCenter(hConsole, str, centerX, centerY);
 
-            char ch;
-            std::cin >> ch;
-            ch = toupper(ch);
-
+            char ch = directInput();
             switch (ch)
             {
             case 'Y':
                 create();
-                std::cin.ignore(32767, '\n');
                 return true;
 
             case 'N':
-                std::cin.ignore(32767, '\n');
                 return false;
-
-            default:
-                std::cin.ignore(32767, '\n');
-                break;
             }
         }
     }
 
     // Спрашивает пользователя, сохранить ли получившийся лабиринт
-    bool saveNew()
+    bool saveNew(HANDLE hConsole, SHORT centerX, SHORT centerY)
     {
         while (true)
         {
             system("cls");
             print();
 
-            std::cout << "Save maze in file? Y/N:";
+            std::string str = "Save maze in file? Y/N";
+            printStrCenter(hConsole, str, centerX, centerY);
 
-            char ch;
-            std::cin >> ch;
-            ch = toupper(ch);
-
+            char ch = directInput();
             switch (ch)
             {
             case 'Y':
                 inFile();
             case 'N':
-                std::cin.ignore(32767, '\n');
                 return false; // Умышленный fall-through: кейс N не выполняет никакой задачи
-
-            default:
-                std::cin.ignore(32767, '\n');
-                break;
             }
         }
     }
 
-    bool mazeMenu(bool isLabirintLoaded)
+    bool mazeMenu(HANDLE hConsole, SHORT centerX, SHORT centerY,bool isLabirintLoaded)
     {
         while (true)
         {
@@ -272,25 +290,26 @@ public:
             if (isLabirintLoaded)
                 print();
 
-            std::cout << "Labirint2D\n";
-            std::cout << "1)Load maze from file.\n" <<
-                         "2)Create maze.\n";
-            
+            std::string str;
+            str = "Labirint2D";
+            printStrCenter(hConsole, str, centerX, centerY, 0, -3);
+
+            str = "Load maze from file";
+            printStrCenter(hConsole, str, centerX, centerY, 0, -1);
+
+            str = "Create maze";
+            printStrCenter(hConsole, str, centerX, centerY);
+
             if (isLabirintLoaded)
-                std::cout << "3)Back to main menu.\n";
-            
-            std::cout << "Enter a option: ";
+            {
+                str = "Back to main menu";
+                printStrCenter(hConsole, str, centerX, centerY, 0, 1);
+            }
 
-            int choice;
-            
-            if (!isLabirintLoaded)
-                choice = inputNum(2);
-            else
-                choice = inputNum(3);
-
+            int choice = directInput();
             switch (choice)
             {
-            case 1:
+            case '1':
                 if (isLabirintLoaded)
                     return true;
                 else
@@ -298,27 +317,32 @@ public:
                     outFile();
                     return true;
                 }
-            case 2:
+            case '2':
                 create();
 
                 bool isChoice;
                 isChoice = true;
 
                 while (isChoice)
-                    isChoice = genNew();
+                    isChoice = genNew(hConsole, centerX, centerY);
 
                 isChoice = true;
                 while (isChoice)
-                    isChoice = saveNew();
+                    isChoice = saveNew(hConsole, centerX, centerY);
 
                 return true;
-            case 3:
-                return true;
-            default:
-                std::cin.ignore(32767, '\n');
+            case '3':
+                if(isLabirintLoaded)
+                    return true;
                 break;
             }
         }
+    }
+
+    // Установить определенной точке в лабиринте обьект
+    void setPoint(const Point& p, const Objects object)
+    {
+        m_labirint[p.x][p.y] = object;
     }
 
     std::string walk(Point& p)
@@ -326,13 +350,7 @@ public:
         std::string msg;
         Keys key;
             
-        // Считывание с клавиатуры напрямую без Enter
-        key = to_key(_getch());
-        if (key == to_key(-32))
-        {
-            key = to_key(_getch());
-            key = to_key(toupper(static_cast<char>(key)));
-        }
+        key = to_key(directInput());
 
         if (key == Keys::ARROW_UP)
         {
@@ -402,8 +420,36 @@ public:
 
 int main()
 {
+   // Полноэкранный режим
+    SendMessage(GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);  
+   
+   // Изменение заголовка консоли
+   TCHAR cTitle[] = L"Labirint2D";
+   SetConsoleTitle(cTitle);
+
+   // Изменение буфера консоли чтобы убрать полосу прокрутки
+   HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+   // Получение информации о размерах буфера консоли
+   CONSOLE_SCREEN_BUFFER_INFO csbi;
+   GetConsoleScreenBufferInfo(hConsole, &csbi);
+
+   // настройка нового буфера консоли
+    COORD sizeConsole{ csbi.dwSize.X, csbi.srWindow.Bottom + 1}; 
+    BOOL resizeSuccessful = SetConsoleScreenBufferSize(hConsole, sizeConsole);
+    if (!resizeSuccessful)
+    {
+        DWORD error = GetLastError();
+        std::cout << "Error " << error;
+        exit(-1);
+    }
+
+    // Скрыть курсор из консоли
+    cursorHide(hConsole);
+
     srand(static_cast<unsigned int>(time(NULL)));
     rand();
+
     Labirint labirint;
 
     bool isLabirintLoaded = false;
@@ -417,21 +463,38 @@ int main()
         if (isLabirintLoaded)
             labirint.print();
         
-        std::cout << "Labirint2D\n";
-        std::cout << "1)Start game\n" <<
-                     "2)Maze menu\n" <<
-                     "3)Settings\n" << 
-                     "4)Exit\n";
-        std::cout << msg;
+        // Получение точек центра экрана
+        GetConsoleScreenBufferInfo(hConsole, &csbi);
+        SHORT centerX = csbi.dwSize.X / 2;
+        SHORT centerY = csbi.dwSize.Y / 2;
+        
+        std::string str = "Labirint2D";
+        printStrCenter(hConsole, str, centerX, centerY, 0, -3);
 
-        std::cout << "Enter a option: ";
-        char choice = inputNum(4);
+        str = "Start";
+        printStrCenter(hConsole, str, centerX, centerY, 0, -1);
 
+        str = "Maze menu";
+        printStrCenter(hConsole, str, centerX, centerY);
+        
+        str = "Settings";
+        printStrCenter(hConsole, str, centerX, centerY, 0, 1);
+
+        str = "Exit";
+        printStrCenter(hConsole, str, centerX, centerY, 0, 2);
+
+        if (msg.length() > 0)
+        {
+            printStrCenter(hConsole, msg, centerX, centerY, 0, 4);
+
+        }
+
+        char choice = directInput();
         switch (choice)
         {
-        case 1:
+        case '1':
             if (!isLabirintLoaded)
-                msg = "\nTo start, load the maze in Maze menu\n";
+                msg = "To start, load the maze in Maze menu";
             else
             {
                 system("cls");
@@ -457,13 +520,13 @@ int main()
                 }
             }
             break;
-        case 2:
-           isLabirintLoaded = labirint.mazeMenu(isLabirintLoaded);
+        case '2':
+           isLabirintLoaded = labirint.mazeMenu(hConsole, centerX, centerY, isLabirintLoaded);
            msg = "";
            break;
-        case 3:
+        case '3':
             break;
-        case 4:
+        case '4':
             exit(0);
         }
     }
