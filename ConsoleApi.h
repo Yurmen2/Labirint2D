@@ -1,0 +1,38 @@
+#pragma once
+#include <string>
+#include <Windows.h>
+#include <iostream>
+
+class Console
+{
+private:
+	HANDLE m_hConsole;
+	SHORT m_centerX;
+	SHORT m_centerY;
+
+	
+public:
+	Console(HANDLE hConsole)
+		: m_hConsole {hConsole}, m_centerX{0}, m_centerY{0}
+	{
+	}
+
+	// Напечатать строку в позиции курсора от центра
+	void printStrCenter(std::string const& str, SHORT offsetX = 0, SHORT offsetY = 0);
+
+	// Полноэкранный режим
+	void fullScreen() { SendMessage(GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000); }
+
+	// Изменение заголовка консоли
+	void title(LPCWSTR cTitle) { SetConsoleTitle(cTitle); }
+
+	// Настройка буфера консоли под экран
+	void setBufferSize();
+
+	// Скрыть курсор из консоли
+	void cursorHide();
+
+	
+	// получить значения x y центра экрана в члены класса
+	void initCenterXY();
+};
