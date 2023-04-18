@@ -1,17 +1,21 @@
 // Labirint - Программа, создающая 2д лабиринт в двумерном массиве.
 
-#include <Windows.h>
+#include <locale>
 #include <time.h>
 #include "Labirint.h"
 #include "ConsoleApi.h"
 
 int main()
-{
+{   
+    _wsetlocale(LC_ALL, L"en-US.UTF8");
+    system("chcp 65001");
+
     Console console {GetStdHandle(STD_OUTPUT_HANDLE)};
 
     console.title(L"Labirint2D");
     console.fullScreen();
     console.setBufferSize();
+    console.setFont();
     console.cursorHide();
     console.initCenterXY();
 
@@ -21,7 +25,7 @@ int main()
     Labirint labirint;
 
     bool isLabirintLoaded = false;
-    std::string msg = "";
+    std::wstring msg = L"";
 
     backToMenu:
     while (true)
@@ -37,7 +41,7 @@ int main()
         {
         case '1':
             if (!isLabirintLoaded)
-                msg = "To start, load the maze in Maze menu";
+                msg = L"To start, load the maze in Maze menu";
             else
             {
                 system("cls");
@@ -52,11 +56,11 @@ int main()
                 {
                     system("cls");
                     labirint.print(console);
-                    std::cout << msg;
+                    std::wcout << msg;
                     msg = labirint.walk(point);
-                    if (msg == "esc")
+                    if (msg == L"esc")
                     {
-                        msg = "";
+                        msg = L"";
                         labirint.setPoint(point, Objects::EMPTY);
                         goto backToMenu;
                     }
@@ -65,7 +69,7 @@ int main()
             break;
         case '2':
            isLabirintLoaded = labirint.mazeMenu(console, isLabirintLoaded);
-           msg = "";
+           msg = L"";
            break;
         case '3':
             break;

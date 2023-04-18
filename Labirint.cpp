@@ -1,6 +1,6 @@
-#include "Labirint.h"
+﻿#include "Labirint.h"
 
-Labirint::Labirint(std::string filename)
+Labirint::Labirint(std::wstring filename)
     :m_f{ filename }, m_labirint{Constants::y, std::vector<Objects>(Constants::x)}
 {
     if (!m_f)
@@ -11,7 +11,7 @@ Labirint::Labirint(std::string filename)
 
     if (!m_f)
     {
-        std::cerr << filename, " could not be opened\n";
+        std::wcerr << filename << L" could not be opened\n";
         exit(-1);
     }
 }
@@ -22,32 +22,90 @@ void Labirint::create()
     {
         for (int iii = 0; iii < Constants::x; iii++)
         {
-            m_labirint[i][iii] = static_cast<Objects>(object_id[rand() % 2]);
+            if (i == 0 || i == Constants::y - 1)
+                m_labirint[i][iii] = Objects::WALL;
+
+            else if(iii == 0 || iii == Constants::x - 1)
+                m_labirint[i][iii] = Objects::WALL;
+            else
+            {
+                m_labirint[i][iii] = static_cast<Objects>(object_id[rand() % 2]);
+            }
         }
     }
 }
 
 void Labirint::print(Console& console)
 {
-    for (int i = 0; i < Constants::y; i++)
-    {
-        if (i == 0 || i == Constants::y)
-        {
-            for (int a = 0; a < Constants::y + 2; a++)
+    const CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();
 
-                std::cout << "~ ";
-            std::cout << '\n';
-        }
-        std::cout << "| ";
-        for (int iii = 0; iii < Constants::x; iii++)
+    for (int i = 0; i < Constants::y; ++i)
+    {
+        std::wstring str;
+
+        //// Вывод ~ в первой и последней строке карты ПОСИМВОЛЬНО
+        //if (i == 0)
+        //{
+        //    for (int aaa = 0; aaa < (Constants::x * 2 + 2); ++aaa)
+        //    {
+        //        str = "~";
+        //        x = -(console.getCenterX()) + aaa + ((csbi.dwSize.X - (Constants::x * 2)) / 2) - 1;
+        //        y = -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) - 1;
+        //        console.printStrCenter(str, x, y);
+        //    }
+        //    
+        //    for (int aaa = 0; aaa < (Constants::x * 2 + 2); ++aaa)
+        //    {
+        //        str = "~";
+        //        x = -(console.getCenterX()) + aaa + ((csbi.dwSize.X - (Constants::x * 2)) / 2) - 1;
+        //        y = -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) + Constants::y;
+        //        console.printStrCenter(str, x, y);
+        //    }
+
+        //// Основной вывод лабиринта ПОСИМВОЛЬНО
+        //for (int iii = 0; iii < Constants::x; ++iii)
+        //{
+        //    
+        //    str = stringObject(m_labirint[i][iii]);
+        //    SHORT x = -(console.getCenterX()) + iii + space + ((csbi.dwSize.X - (Constants::x * 2)) / 2);
+        //    SHORT y = -(console.getCenterY()) + i + ((csbi.dwSize.Y - (Constants::y)) / 2);
+        //    console.printStrCenter(str, x, y);
+        //    ++space;
+        //}
+        //std::cout << '\n'; 
+
+        // Вывод ГОРИЗОНТАЛЬНОЙ ЛИНИИ в первой и последней строке карты ПОСТРОЧНО
+        if (i == 0)
         {
-            std::cout << stringObject(m_labirint[i][iii]) << " ";
+            // Закругляющая левая верхняя линия
+            str = L"\u250c";
+            // Горизонтальная линия
+            for (int aaa = 0; aaa < (Constants::x + 2); ++aaa)
+                str += L"\u2500";
+            
+            // Закругляющая правая верхняя линия
+            str += L"\u2510";
+            console.printStrCenter(str, 0, -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) - 1);
+
+
+            // Закругляющая левая нижняя линия
+            str[0] = L'\u2514';
+            // Закругляющая правая нижняя линия
+            str[Constants::x + 3] = L'\u2518';
+            console.printStrCenter(str, 0, -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) + Constants::y);
         }
-        std::cout << "|\n";
+
+        // Вертикальная линия
+        str = L"\u2502 ";
+
+        // Основной вывод лабиринта ПОСТРОЧНО
+        for (int iii = 0; iii < Constants::x; ++iii)
+            str += wcstrObject(m_labirint[i][iii]);
+        // Вертикальная линия
+        str += L" \u2502";
+        console.printStrCenter(str, 0, -(console.getCenterY()) + i + ((csbi.dwSize.Y - (Constants::y)) / 2));
+
     }
-    for (int a = 0; a < Constants::y + 2; a++)
-        std::cout << "~ ";
-    std::cout << "\n\n";
 }
 
 void Labirint::inFile()
@@ -83,8 +141,8 @@ bool Labirint::genNew(Console& console)
         print(console);
 
 
-        std::string str = "Generate a new maze? Y/N";
-        console.printStrCenter(str);
+        std::wstring str = L"Generate a new maze? Y/N";
+        console.printStrCenter(str, 0, -Constants::y / 2 - 2);
 
         char ch = directInput();
         switch (ch)
@@ -106,8 +164,8 @@ bool Labirint::saveNew(Console& console)
         system("cls");
         print(console);
 
-        std::string str = "Save maze in file? Y/N";
-        console.printStrCenter(str);
+        std::wstring str = L"Save maze in file? Y/N";
+        console.printStrCenter(str, 0, -Constants::y / 2 - 2);
 
         char ch = directInput();
         switch (ch)
@@ -115,7 +173,7 @@ bool Labirint::saveNew(Console& console)
         case 'Y':
             inFile();
         case 'N':
-            return false; // ���������� fall-through: ���� N �� ��������� ������� ������
+            return false; // Умышленный fall-through: кейс N не выполняет никакой задачи
         }
     }
 }
@@ -130,33 +188,28 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
             print(console);
 
 
-        std::string str;
-        str = "Labirint2D";
-        console.printStrCenter(str, 0, -3);
+        std::wstring str;
+        str = L"Labirint2D";
+        console.printStrCenter(str, 0, -Constants::y / 2 - 9);
 
-        str = "Load maze from file";
-        console.printStrCenter(str, 0, -1);
+        str = L"Load maze from file";
+        console.printStrCenter(str, 0, -Constants::y / 2 - 7);
 
-        str = "Create maze";
-        console.printStrCenter(str);
+        str = L"Create maze";
+        console.printStrCenter(str, 0, -Constants::y / 2 - 6);
 
         if (isLabirintLoaded)
         {
-            str = "Back to main menu";
-            console.printStrCenter(str, 0, 1);
+            str = L"Back to main menu";
+            console.printStrCenter(str, 0, -Constants::y / 2 - 5);
         }
 
         int choice = directInput();
         switch (choice)
         {
         case '1':
-            if (isLabirintLoaded)
-                return true;
-            else
-            {
                 outFile();
                 return true;
-            }
         case '2':
             create();
 
@@ -179,35 +232,35 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
     }
 }
 
-void Labirint::mainMenu(Console& console, std::string& msg)
+void Labirint::mainMenu(Console& console, std::wstring& msg)
 {
-    std::string str;
-    str = "Labirint2D";
-    console.printStrCenter(str, 0, -3);
+    std::wstring str;
+    str = L"Labirint2D";
+    console.printStrCenter(str, 0, -Constants::y / 2 - 9);
 
-    str = "Start";
-    console.printStrCenter(str, 0, -1);
+    str = L"Start";
+    console.printStrCenter(str, 0, -Constants::y / 2 - 7);
 
-    str = "Maze menu";
-    console.printStrCenter(str);
+    str = L"Maze menu";
+    console.printStrCenter(str, 0, -Constants::y / 2 - 6);
 
-    str = "Settings";
-    console.printStrCenter(str, 0, 1);
+    str = L"Settings";
+    console.printStrCenter(str, 0, -Constants::y / 2 - 5);
 
-    str = "Exit";
-    console.printStrCenter(str, 0, 2);
+    str = L"Exit";
+    console.printStrCenter(str, 0, -Constants::y / 2 - 4);
 
     if (msg.length() > 0)
     {
-        console.printStrCenter(msg, 0, 4);
+        console.printStrCenter(msg, 0, -Constants::y / 2 - 2);
 
     }
 }
 
 
-std::string Labirint::walk(Point& p)
+std::wstring Labirint::walk(Point& p)
 {
-    std::string msg;
+    std::wstring msg;
     Keys key;
 
     key = static_cast<Keys>(directInput());
@@ -222,7 +275,7 @@ std::string Labirint::walk(Point& p)
         }
         else
         {
-            msg = "You can't move higher.\n";
+            msg = L"You can't move higher.\n";
         }
     }
 
@@ -236,7 +289,7 @@ std::string Labirint::walk(Point& p)
         }
         else
         {
-            msg = "You can't move to the left.\n";
+            msg = L"You can't move to the left.\n";
         }
     }
 
@@ -250,7 +303,7 @@ std::string Labirint::walk(Point& p)
         }
         else
         {
-            msg = "You can't move to the lower.\n";
+            msg = L"You can't move to the lower.\n";
         }
     }
 
@@ -264,13 +317,13 @@ std::string Labirint::walk(Point& p)
         }
         else
         {
-            msg = "You can't move to the right.\n";
+            msg = L"You can't move to the right.\n";
         }
     }
 
     else if (key == Keys::ESC)
     {
-        msg = "esc";
+        msg = L"esc";
     }
 
     return msg;

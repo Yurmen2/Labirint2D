@@ -1,6 +1,5 @@
 #pragma once
 #include <fstream>
-#include <iostream> // !!!
 #include <vector>
 #include "funcs.h"
 #include "other.h"
@@ -14,13 +13,12 @@ private:
 
 public:
     
-    Labirint(std::string filename = "labirint.txt");
+    Labirint(std::wstring filename = L"labirint.maze");
 
     // создание случайного лабиринта: стены и проходы
     void create();
 
     // ¬ывод изображени€ лабиринта
-    // !! »спользуетс€ старый вывод без центрировани€
     void print(Console& console);
 
     // «аписать данные лабиринта в файл
@@ -38,12 +36,12 @@ public:
     bool mazeMenu(Console& console, bool isLabirintLoaded);
     
     // ќтображает основное меню 
-    void mainMenu(Console& console, std::string& msg);
+    void mainMenu(Console& console, std::wstring& msg);
 
     // ”становить определенной точке в лабиринте обьект
     void setPoint(const Point& p, const Objects object) { m_labirint[p.x][p.y] = object; }
 
     // ѕозвол€ет передвигатьс€ на стрелочки по лабиринту
-    std::string walk(Point& p);
+    std::wstring walk(Point& p);
 
 };

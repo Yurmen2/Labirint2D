@@ -1,9 +1,11 @@
 #pragma once
 
+#define to_int(x) static_cast<int>(x)
+
 namespace Constants
 {
 	const short y = 40;
-	const short x = 110;
+	const short x = 220;
 }
 
 enum class Keys
@@ -17,16 +19,16 @@ enum class Keys
 
 enum class Objects
 {
-    WALL = 'W',
-    EMPTY = 'E',
-    HERO = '*',
+    WALL,
+    EMPTY,
+    HERO,
 };
 
 static int object_id[]
 {
-    'W',
-    'E',
-    '*',
+    to_int(Objects::WALL),
+    to_int(Objects::EMPTY),
+    to_int(Objects::HERO),
 };
 
 struct Point

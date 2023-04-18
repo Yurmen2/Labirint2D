@@ -57,21 +57,21 @@ void inputPoint(Point& point)
 }
 
 
-std::string stringObject(Objects& object)
+std::wstring wcstrObject(Objects& object)
 {
-    std::string stringObject;
+    std::wstring wcstrObject;
     switch (object)
     {
     case Objects::WALL:
-        stringObject = 'W';
+        wcstrObject = L"\u2588";
         break;
     case Objects::EMPTY:
-        stringObject = 'E';
+        wcstrObject = L" ";
         break;
     case Objects::HERO:
-        stringObject = '*';
+        wcstrObject = L"*";
         break;
     }
 
-    return stringObject;
+    return wcstrObject;
 }

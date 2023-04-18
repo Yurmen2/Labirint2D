@@ -7,18 +7,19 @@ class Console
 {
 private:
 	HANDLE m_hConsole;
+	CONSOLE_SCREEN_BUFFER_INFO m_csbi;
 	SHORT m_centerX;
 	SHORT m_centerY;
 
 	
 public:
 	Console(HANDLE hConsole)
-		: m_hConsole {hConsole}, m_centerX{0}, m_centerY{0}
+		: m_hConsole {hConsole}, m_centerX{0}, m_centerY{0}, m_csbi {0}
 	{
 	}
 
 	// Напечатать строку в позиции курсора от центра
-	void printStrCenter(std::string const& str, SHORT offsetX = 0, SHORT offsetY = 0);
+	void printStrCenter(std::wstring const& str, SHORT offsetX = 0, SHORT offsetY = 0);
 
 	// Полноэкранный режим
 	void fullScreen() { SendMessage(GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000); }
@@ -31,8 +32,15 @@ public:
 
 	// Скрыть курсор из консоли
 	void cursorHide();
-
 	
 	// получить значения x y центра экрана в члены класса
 	void initCenterXY();
+
+	// Геттеры
+	SHORT getCenterX() { return m_centerX; }
+	SHORT getCenterY() { return m_centerY; }
+	CONSOLE_SCREEN_BUFFER_INFO& getCsbi() { return m_csbi; }
+
+	// Изменение шрифта в консоли
+	void setFont(std::wstring font = L"Consolas");
 };

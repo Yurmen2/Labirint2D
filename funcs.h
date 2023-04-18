@@ -13,6 +13,6 @@ int inputNum(const int limit = 0);
 // Ввести точки для структуры Point(использует inputNum())
 void inputPoint(Point& point);
 
-// Возвращает первую букву объекта
-std::string stringObject(Objects& object);
+// Возвращает символ объекта
+std::wstring wcstrObject(Objects& object);
 
