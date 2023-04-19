@@ -32,7 +32,10 @@ public:
 
 	// Скрыть курсор из консоли
 	void cursorHide();
-	
+
+	// Изменение шрифта в консоли
+	void setFont( SHORT x = 8, SHORT y = 16, std::wstring font = L"Consolas");
+
 	// получить значения x y центра экрана в члены класса
 	void initCenterXY();
 
@@ -40,7 +43,4 @@ public:
 	SHORT getCenterX() { return m_centerX; }
 	SHORT getCenterY() { return m_centerY; }
 	CONSOLE_SCREEN_BUFFER_INFO& getCsbi() { return m_csbi; }
-
-	// Изменение шрифта в консоли
-	void setFont(std::wstring font = L"Consolas");
 };

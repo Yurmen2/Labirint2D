@@ -18,9 +18,9 @@ Labirint::Labirint(std::wstring filename)
 
 void Labirint::create()
 {
-    for (int i = 0; i < Constants::y; i++)
+    for (int i = 0; i < Constants::y; ++i)
     {
-        for (int iii = 0; iii < Constants::x; iii++)
+        for (int iii = 0; iii < Constants::x; ++iii)
         {
             if (i == 0 || i == Constants::y - 1)
                 m_labirint[i][iii] = Objects::WALL;
@@ -30,6 +30,22 @@ void Labirint::create()
             else
             {
                 m_labirint[i][iii] = static_cast<Objects>(object_id[rand() % 2]);
+            }
+        }
+        
+        
+        }
+
+    // Закрашивание одиноких проходов без выхода
+    for (int i = 1; i < Constants::y; i++)
+    {
+        for (int iii = 1; iii < Constants::x; iii++)
+        {
+            if (i >= 1 && i < Constants::y -1 && iii >= 1 && iii < Constants::x - 1)
+            {
+                if (m_labirint[i - 1][iii] == Objects::WALL && m_labirint[i + 1][iii] == Objects::WALL &&
+                    m_labirint[i][iii - 1] == Objects::WALL && m_labirint[i][iii + 1] == Objects::WALL)
+                    m_labirint[i][iii] = Objects::WALL;
             }
         }
     }
@@ -80,31 +96,30 @@ void Labirint::print(Console& console)
             // Закругляющая левая верхняя линия
             str = L"\u250c";
             // Горизонтальная линия
-            for (int aaa = 0; aaa < (Constants::x + 2); ++aaa)
+            for (int aaa = 0; aaa < (Constants::x); ++aaa)
                 str += L"\u2500";
             
             // Закругляющая правая верхняя линия
             str += L"\u2510";
-            console.printStrCenter(str, 0, -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) - 1);
+            console.printStrCenter(str, 0, -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2));
 
 
             // Закругляющая левая нижняя линия
             str[0] = L'\u2514';
             // Закругляющая правая нижняя линия
-            str[Constants::x + 3] = L'\u2518';
-            console.printStrCenter(str, 0, -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) + Constants::y);
+            str[Constants::x + 1] = L'\u2518';
+            console.printStrCenter(str, 0, -(console.getCenterY()) + ((csbi.dwSize.Y - (Constants::y)) / 2) + Constants::y + 1);
         }
 
         // Вертикальная линия
-        str = L"\u2502 ";
+        str = L"\u2502";
 
         // Основной вывод лабиринта ПОСТРОЧНО
         for (int iii = 0; iii < Constants::x; ++iii)
             str += wcstrObject(m_labirint[i][iii]);
         // Вертикальная линия
-        str += L" \u2502";
-        console.printStrCenter(str, 0, -(console.getCenterY()) + i + ((csbi.dwSize.Y - (Constants::y)) / 2));
-
+        str += L"\u2502";
+        console.printStrCenter(str, 0, -(console.getCenterY()) + i + ((csbi.dwSize.Y - (Constants::y)) / 2) + 1);
     }
 }
 
@@ -142,7 +157,7 @@ bool Labirint::genNew(Console& console)
 
 
         std::wstring str = L"Generate a new maze? Y/N";
-        console.printStrCenter(str, 0, -Constants::y / 2 - 2);
+        console.printStrCenter(str, 0, -Constants::y / 2 - 3);
 
         char ch = directInput();
         switch (ch)
@@ -165,7 +180,7 @@ bool Labirint::saveNew(Console& console)
         print(console);
 
         std::wstring str = L"Save maze in file? Y/N";
-        console.printStrCenter(str, 0, -Constants::y / 2 - 2);
+        console.printStrCenter(str, 0, -Constants::y / 2 - 3);
 
         char ch = directInput();
         switch (ch)
@@ -187,22 +202,59 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
         if (isLabirintLoaded)
             print(console);
 
-
         std::wstring str;
-        str = L"Labirint2D";
-        console.printStrCenter(str, 0, -Constants::y / 2 - 9);
 
-        str = L"Load maze from file";
-        console.printStrCenter(str, 0, -Constants::y / 2 - 7);
+        // Очистить поле для меню
+        for (int i = 0; i < 18; ++i)
+            str += L" ";
 
-        str = L"Create maze";
-        console.printStrCenter(str, 0, -Constants::y / 2 - 6);
+        for (int i = 0; i < 6; ++i)
+            console.printStrCenter(str, 0, -3 + i);
+
+        // Верхняя линия
+        str = L"\u250c";
+        for (int i = 0; i < 20; ++i)
+        {
+            str += L"\u2500";
+        }
+        str += L"\u2510";
+        console.printStrCenter(str, 0, -5);
+
+
+        str = L"\u2502                    \u2502";
+        console.printStrCenter(str, 0, -4);
+
+        str = L"\u2502     Labirint2D     \u2502";
+        console.printStrCenter(str, 0, -3);
+
+        str = L"\u2502                    \u2502";
+        console.printStrCenter(str, 0, -2);
+
+        str = L"\u2502Load maze from file \u2502";
+        console.printStrCenter(str, 0, -1);
+
+        str = L"\u2502    Create maze     \u2502";
+        console.printStrCenter(str, 0, 0);
 
         if (isLabirintLoaded)
         {
-            str = L"Back to main menu";
-            console.printStrCenter(str, 0, -Constants::y / 2 - 5);
+            str = L"\u2502 Back to main menu  \u2502";
+            console.printStrCenter(str, 0, 1);
         }
+        else
+        {
+            str = L"\u2502                    \u2502";
+            console.printStrCenter(str, 0, 1);
+        }
+
+        // Нижняя линия
+        str = L"\u2514";
+        for (int i = 0; i < 20; ++i)
+        {
+            str += L"\u2500";
+        }
+        str += L"\u2518";
+        console.printStrCenter(str, 0, 2);
 
         int choice = directInput();
         switch (choice)
@@ -235,26 +287,59 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
 void Labirint::mainMenu(Console& console, std::wstring& msg)
 {
     std::wstring str;
-    str = L"Labirint2D";
-    console.printStrCenter(str, 0, -Constants::y / 2 - 9);
 
-    str = L"Start";
-    console.printStrCenter(str, 0, -Constants::y / 2 - 7);
+    // Очистить поле для меню
+    for (int i = 0; i < 12; ++i)
+        str += L" ";
 
-    str = L"Maze menu";
-    console.printStrCenter(str, 0, -Constants::y / 2 - 6);
+    for (int i = 0; i < 10; ++i)
+        console.printStrCenter(str, 0, -5 + i);
 
-    str = L"Settings";
-    console.printStrCenter(str, 0, -Constants::y / 2 - 5);
+    // Верхняя линия
+    str = L"\u250c";
+    for (int i = 0; i < 12; ++i)
+    {
+        str += L"\u2500";
+    }
+    str += L"\u2510";
+    console.printStrCenter(str, 0, -5);
+    
+    str = L"\u2502            \u2502";
+    console.printStrCenter(str, 0, -4);
 
-    str = L"Exit";
-    console.printStrCenter(str, 0, -Constants::y / 2 - 4);
+    str = L"\u2502 Labirint2D \u2502";
+    console.printStrCenter(str, 0, -3);
+
+    str = L"\u2502            \u2502";
+    console.printStrCenter(str, 0, -2);
+
+    str = L"\u2502    Start   \u2502";
+    console.printStrCenter(str, 0, -1);
+
+    str = L"\u2502  Maze menu \u2502";
+    console.printStrCenter(str, 0, 0);
+
+    str = L"\u2502  Settings  \u2502";
+    console.printStrCenter(str, 0, 1);
+
+    str = L"\u2502    Exit    \u2502";
+    console.printStrCenter(str, 0, 2);
+
+    str = L"\u2502            \u2502";
+    console.printStrCenter(str, 0, 3);
+
+    // Нижняя линия
+    str = L"\u2514";
+    for (int i = 0; i < 12; ++i)
+    {
+        str += L"\u2500";
+    }
+    str += L"\u2518";
+    console.printStrCenter(str, 0, 4);
 
     if (msg.length() > 0)
-    {
-        console.printStrCenter(msg, 0, -Constants::y / 2 - 2);
+        console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
 
-    }
 }
 
 

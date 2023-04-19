@@ -13,9 +13,9 @@ int main()
     Console console {GetStdHandle(STD_OUTPUT_HANDLE)};
 
     console.title(L"Labirint2D");
-    console.fullScreen();
+    console.setFont(16, 22, L"Courier New");
     console.setBufferSize();
-    console.setFont();
+    console.fullScreen();
     console.cursorHide();
     console.initCenterXY();
 
@@ -33,7 +33,7 @@ int main()
         system("cls");
         if (isLabirintLoaded)
             labirint.print(console);
-        
+
         labirint.mainMenu(console, msg);
 
         char choice = directInput();

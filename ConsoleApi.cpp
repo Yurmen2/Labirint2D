@@ -9,17 +9,25 @@ void Console::printStrCenter(std::wstring const& str, SHORT offsetX, SHORT offse
 }
 
 void Console::setBufferSize()
-{
+{    
+    // Установка окна 1920x1080 для корректного вычисления буфера консоли
+    HWND wConsole = GetConsoleWindow();
+
+    RECT r;
+    GetWindowRect(wConsole, &r);
+    MoveWindow(wConsole, r.left, r.top, 1920, 1080, true);
+
     // Получение информации о размерах буфера консоли
     GetConsoleScreenBufferInfo(m_hConsole, &m_csbi);
 
     // настройка нового буфера консоли
-    COORD sizeConsole{ m_csbi.dwSize.X, m_csbi.srWindow.Bottom + 1 };
+
+    COORD sizeConsole{ m_csbi.srWindow.Right + 1, m_csbi.srWindow.Bottom + 1 };
     BOOL resizeSuccessful = SetConsoleScreenBufferSize(m_hConsole, sizeConsole);
     if (!resizeSuccessful)
     {
         DWORD error = GetLastError();
-        printStrCenter(L"Error" + error);
+        std::wcerr << error;
         exit(-1);
     }
     // Обновление информации о размерах буфера консоли
@@ -35,16 +43,16 @@ void Console::cursorHide()
     SetConsoleCursorInfo(m_hConsole, &cci);
 }
 
-void Console::setFont(std::wstring font)
+void Console::setFont(SHORT x, SHORT y, const std::wstring font)
 {
     CONSOLE_FONT_INFOEX fontInfo;
     fontInfo.cbSize = sizeof(fontInfo);
     fontInfo.nFont = 0;
-    fontInfo.dwFontSize.X = 8;
-    fontInfo.dwFontSize.Y = 16;
+    fontInfo.dwFontSize.X = x;
+    fontInfo.dwFontSize.Y = y;
     fontInfo.FontFamily = FF_DONTCARE;
     fontInfo.FontWeight = FW_NORMAL;
-    wcscpy_s(fontInfo.FaceName, L"Consolas");
+    wcscpy_s(fontInfo.FaceName, font.c_str());
 
     SetCurrentConsoleFontEx(m_hConsole, FALSE, &fontInfo);
 }

@@ -5,7 +5,7 @@
 namespace Constants
 {
 	const short y = 40;
-	const short x = 220;
+	const short x = 110;
 }
 
 enum class Keys
