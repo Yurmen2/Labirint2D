@@ -31,10 +31,8 @@ void Labirint::create()
             {
                 m_labirint[i][iii] = static_cast<Objects>(object_id[rand() % 2]);
             }
-        }
-        
-        
-        }
+        }   
+     }
 
     // Закрашивание одиноких проходов без выхода
     for (int i = 1; i < Constants::y; i++)
@@ -51,7 +49,7 @@ void Labirint::create()
     }
 }
 
-void Labirint::print(Console& console)
+void Labirint::printMaze(Console& console)
 {
     const CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();
 
@@ -116,16 +114,27 @@ void Labirint::print(Console& console)
 
         // Основной вывод лабиринта ПОСТРОЧНО
         for (int iii = 0; iii < Constants::x; ++iii)
-            str += wcstrObject(m_labirint[i][iii]);
+            str += wstrObject(m_labirint[i][iii]);
         // Вертикальная линия
         str += L"\u2502";
         console.printStrCenter(str, 0, -(console.getCenterY()) + i + ((csbi.dwSize.Y - (Constants::y)) / 2) + 1);
     }
 }
 
+void Labirint::printPoint(Console& console, Point& p)
+{
+    SHORT x, y;
+    CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();
+
+    x = -(console.getCenterX()) + p.x + ((csbi.dwSize.X - (Constants::x)) / 2);
+    y = -(console.getCenterY()) + p.y + ((csbi.dwSize.Y - (Constants::y)) / 2) + 1;
+
+    console.printStrCenter(wstrObject(m_labirint[p.y][p.x]), x + 2, y);
+}
+
 void Labirint::inFile()
 {
-    for (int i = 0; i < Constants::y; i++)
+    for (int i = 0;  i < Constants::y; i++)
     {
         for (int iii = 0; iii < Constants::x; iii++)
         {
@@ -152,21 +161,23 @@ bool Labirint::genNew(Console& console)
 {
     while (true)
     {
-        system("cls");
-        print(console);
+        printMaze(console);
 
 
         std::wstring str = L"Generate a new maze? Y/N";
         console.printStrCenter(str, 0, -Constants::y / 2 - 3);
 
         char ch = directInput();
+
+        int str_size = static_cast<int>(str.length());
         switch (ch)
         {
         case 'Y':
             create();
-            return true;
-
+            console.clear_zone(1, str_size, 0, -Constants::y / 2 - 3);
+            break;
         case 'N':
+            console.clear_zone(1, str_size, 0, -Constants::y / 2 - 3);
             return false;
         }
     }
@@ -176,19 +187,19 @@ bool Labirint::saveNew(Console& console)
 {
     while (true)
     {
-        system("cls");
-        print(console);
-
         std::wstring str = L"Save maze in file? Y/N";
         console.printStrCenter(str, 0, -Constants::y / 2 - 3);
 
         char ch = directInput();
+
+        int str_size = static_cast<int>(str.length());
         switch (ch)
         {
         case 'Y':
             inFile();
         case 'N':
-            return false; // Умышленный fall-through: кейс N не выполняет никакой задачи
+            console.clear_zone(1 ,str_size, 0, -Constants::y / 2 - 3);
+            return false;
         }
     }
 }
@@ -197,23 +208,23 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
 {
     while (true)
     {
-        system("cls");
 
         if (isLabirintLoaded)
-            print(console);
+            printMaze(console);
 
         std::wstring str;
+        short clear_zone_size;
+        if (isLabirintLoaded)
+            clear_zone_size = 6;
+        else
+            clear_zone_size = 10;
 
-        // Очистить поле для меню
-        for (int i = 0; i < 18; ++i)
-            str += L" ";
-
-        for (int i = 0; i < 6; ++i)
-            console.printStrCenter(str, 0, -3 + i);
+        short str_size = 20;
+        console.clear_zone(clear_zone_size, str_size, 0, -5 );
 
         // Верхняя линия
         str = L"\u250c";
-        for (int i = 0; i < 20; ++i)
+        for (int i = 0; i < str_size; ++i)
         {
             str += L"\u2500";
         }
@@ -249,7 +260,7 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
 
         // Нижняя линия
         str = L"\u2514";
-        for (int i = 0; i < 20; ++i)
+        for (int i = 0; i < str_size; ++i)
         {
             str += L"\u2500";
         }
@@ -265,20 +276,17 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
         case '2':
             create();
 
-            bool isChoice;
-            isChoice = true;
+            genNew(console);
 
-            while (isChoice)
-                isChoice = genNew(console);
-
-            isChoice = true;
-            while (isChoice)
-                isChoice = saveNew(console);
+            saveNew(console);
 
             return true;
         case '3':
             if (isLabirintLoaded)
+            {
+                printMaze(console);
                 return true;
+            }
             break;
         }
     }
@@ -288,19 +296,17 @@ void Labirint::mainMenu(Console& console, std::wstring& msg)
 {
     std::wstring str;
 
-    // Очистить поле для меню
-    for (int i = 0; i < 12; ++i)
-        str += L" ";
+    short str_size = 12;
+    short clear_zone_size = 10;
+    
+    console.clear_zone(clear_zone_size, str_size, 0, -5);
 
-    for (int i = 0; i < 10; ++i)
-        console.printStrCenter(str, 0, -5 + i);
 
     // Верхняя линия
     str = L"\u250c";
-    for (int i = 0; i < 12; ++i)
-    {
+    for (int i = 0; i < str_size; ++i)
         str += L"\u2500";
-    }
+
     str += L"\u2510";
     console.printStrCenter(str, 0, -5);
     
@@ -330,21 +336,20 @@ void Labirint::mainMenu(Console& console, std::wstring& msg)
 
     // Нижняя линия
     str = L"\u2514";
-    for (int i = 0; i < 12; ++i)
-    {
+    for (int i = 0; i < str_size; ++i)
         str += L"\u2500";
-    }
+
     str += L"\u2518";
     console.printStrCenter(str, 0, 4);
 
     if (msg.length() > 0)
         console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
-
 }
 
 
-std::wstring Labirint::walk(Point& p)
-{
+std::wstring Labirint::walk(Console& console,Point& p)
+    {
+    
     std::wstring msg;
     Keys key;
 
@@ -352,11 +357,15 @@ std::wstring Labirint::walk(Point& p)
 
     if (key == Keys::ARROW_UP)
     {
-        if (m_labirint[p.x - 1][p.y] == Objects::EMPTY)
+        if (m_labirint[p.y - 1][p.x] == Objects::EMPTY)
         {
-            m_labirint[p.x][p.y] = Objects::EMPTY;
-            p.x = p.x - 1;
-            m_labirint[p.x][p.y] = Objects::HERO;
+            m_labirint[p.y][p.x] = Objects::EMPTY;
+            printPoint(console, p);
+
+            p.y = p.y - 1;
+            m_labirint[p.y][p.x] = Objects::HERO;
+
+            printPoint(console, p);
         }
         else
         {
@@ -366,11 +375,15 @@ std::wstring Labirint::walk(Point& p)
 
     else if (key == Keys::ARROW_LEFT)
     {
-        if (m_labirint[p.x][p.y - 1] == Objects::EMPTY)
+        if (m_labirint[p.y][p.x - 1] == Objects::EMPTY)
         {
-            m_labirint[p.x][p.y] = Objects::EMPTY;
-            p.y = p.y - 1;
-            m_labirint[p.x][p.y] = Objects::HERO;
+            m_labirint[p.y][p.x] = Objects::EMPTY;
+            printPoint(console, p);
+
+            p.x = p.x - 1;
+            m_labirint[p.y][p.x] = Objects::HERO;
+            printPoint(console, p);
+
         }
         else
         {
@@ -380,11 +393,15 @@ std::wstring Labirint::walk(Point& p)
 
     else if (key == Keys::ARROW_BACK)
     {
-        if (m_labirint[p.x + 1][p.y] == Objects::EMPTY)
+        if (m_labirint[p.y + 1][p.x] == Objects::EMPTY)
         {
-            m_labirint[p.x][p.y] = Objects::EMPTY;
-            p.x = p.x + 1;
-            m_labirint[p.x][p.y] = Objects::HERO;
+            m_labirint[p.y][p.x] = Objects::EMPTY;
+            printPoint(console, p);
+
+
+            p.y = p.y + 1;
+            m_labirint[p.y][p.x] = Objects::HERO;
+            printPoint(console, p);
         }
         else
         {
@@ -394,11 +411,14 @@ std::wstring Labirint::walk(Point& p)
 
     else if (key == Keys::ARROW_RIGHT)
     {
-        if (m_labirint[p.x][p.y + 1] == Objects::EMPTY)
+        if (m_labirint[p.y][p.x + 1] == Objects::EMPTY)
         {
-            m_labirint[p.x][p.y] = Objects::EMPTY;
-            p.y = p.y + 1;
-            m_labirint[p.x][p.y] = Objects::HERO;
+            m_labirint[p.y][p.x] = Objects::EMPTY;
+            printPoint(console, p);
+
+            p.x = p.x + 1;
+            m_labirint[p.y][p.x] = Objects::HERO;
+            printPoint(console, p);
         }
         else
         {

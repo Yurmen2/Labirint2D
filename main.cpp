@@ -26,13 +26,13 @@ int main()
 
     bool isLabirintLoaded = false;
     std::wstring msg = L"";
+    std::wstring str = L"";
+    
+    console.clear_zone(1, 30, -(console.getCenterX()) + 15, -(console.getCenterY()));
 
     backToMenu:
     while (true)
     {
-        system("cls");
-        if (isLabirintLoaded)
-            labirint.print(console);
 
         labirint.mainMenu(console, msg);
 
@@ -44,24 +44,34 @@ int main()
                 msg = L"To start, load the maze in Maze menu";
             else
             {
-                system("cls");
-                labirint.print(console);
-                std::cout << "Enter start point(x, y): \n";
+                bool isLabirintPrint = false;
+                if (!isLabirintPrint)
+                {
+                    labirint.printMaze(console);
+                    isLabirintPrint = true;
+                }
                 Point point {};
-
-                inputPoint(point);
+                inputPoint(console, point);
 
                 labirint.setPoint(point, Objects::HERO);
+                labirint.printPoint(console, point);
                 while (true)
                 {
-                    system("cls");
-                    labirint.print(console);
-                    std::wcout << msg;
-                    msg = labirint.walk(point);
+                    if (msg.length() > 1)
+                    {
+                        console.clear_zone(1, 30, 0, -Constants::y / 2 - 3);
+                        console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
+                    }
+
+
+                    msg = labirint.walk(console, point);
                     if (msg == L"esc")
                     {
                         msg = L"";
+                        console.clear_zone(1, 30, 0, -Constants::y / 2 - 3);
                         labirint.setPoint(point, Objects::EMPTY);
+                        labirint.printPoint(console, point);
+                        isLabirintPrint = false;
                         goto backToMenu;
                     }
                 }
@@ -74,6 +84,8 @@ int main()
         case '3':
             break;
         case '4':
+            CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();
+            console.clear_zone(csbi.dwSize.Y, csbi.dwSize.X, -2, -(console.getCenterY()));
             exit(0);
         }
     }

@@ -33,6 +33,6 @@ static int object_id[]
 
 struct Point
 {
-    long long x;
-    long long y;
+    short x;
+    short y;
 };

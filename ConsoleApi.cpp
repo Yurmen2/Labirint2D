@@ -5,7 +5,14 @@ void Console::printStrCenter(std::wstring const& str, SHORT offsetX, SHORT offse
     COORD cPos;
     cPos = { static_cast<SHORT>(m_centerX - (str.length() / 2) + offsetX), static_cast<SHORT>(m_centerY + offsetY) };
     SetConsoleCursorPosition(m_hConsole, cPos);
-    std::wcout << str;
+    std::wcout << str << std::endl;
+}
+
+void Console::setCursorPosCenter(SHORT offsetX, SHORT offsetY)
+{
+    COORD cPos;
+    cPos = { static_cast<SHORT>(m_centerX + offsetX), static_cast<SHORT>(m_centerY + offsetY) };
+    SetConsoleCursorPosition(m_hConsole, cPos);
 }
 
 void Console::setBufferSize()
@@ -64,4 +71,18 @@ void Console::initCenterXY()
     GetConsoleScreenBufferInfo(m_hConsole, &csbi);
     Console::m_centerX = csbi.dwSize.X / 2;
     Console::m_centerY = csbi.dwSize.Y / 2;
+}
+
+// очищает определенную зону, заполн€ет пробелами
+// str_size - ћаксимальна€ длина строки
+// clear_zone_size —трок дл€ очистки
+void Console::clear_zone(SHORT clear_zone_size, SHORT str_size, SHORT x, SHORT y)
+{
+    std::wstring wstr = L"";
+
+    for (int i = 0; i < str_size; ++i)
+        wstr += L" ";
+
+    for (int i = 0; i < clear_zone_size; ++i)
+        printStrCenter(wstr, x, y + i);
 }

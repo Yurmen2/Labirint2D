@@ -19,7 +19,13 @@ public:
     void create();
 
     // Вывод изображения лабиринта
-    void print(Console& console);
+    void printMaze(Console& console);
+
+    // Вывод одной точки лабиринта
+    void printPoint(Console& console, Point& p);
+
+    // Установить определенной точке в лабиринте обьект
+    void setPoint(const Point& p, const Objects object) { m_labirint[p.y][p.x] = object; }
 
     // Записать данные лабиринта в файл
     void inFile();
@@ -38,10 +44,7 @@ public:
     // Отображает основное меню 
     void mainMenu(Console& console, std::wstring& msg);
 
-    // Установить определенной точке в лабиринте обьект
-    void setPoint(const Point& p, const Objects object) { m_labirint[p.x][p.y] = object; }
-
     // Позволяет передвигаться на стрелочки по лабиринту
-    std::wstring walk(Point& p);
+    std::wstring walk(Console& console, Point& p);
 
 };

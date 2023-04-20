@@ -21,6 +21,9 @@ public:
 	// Напечатать строку в позиции курсора от центра
 	void printStrCenter(std::wstring const& str, SHORT offsetX = 0, SHORT offsetY = 0);
 
+	// Установить курсор в центре
+	void setCursorPosCenter(SHORT offsetX = 0, SHORT offsetY = 0);
+
 	// Полноэкранный режим
 	void fullScreen() { SendMessage(GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000); }
 
@@ -36,8 +39,11 @@ public:
 	// Изменение шрифта в консоли
 	void setFont( SHORT x = 8, SHORT y = 16, std::wstring font = L"Consolas");
 
-	// получить значения x y центра экрана в члены класса
+	// Получить значения x y центра экрана в члены класса
 	void initCenterXY();
+
+	// Очистка определенной зоны(заполняет выделенный участок пробелами)
+	void clear_zone(SHORT clear_zone_size, SHORT str_size, SHORT x, SHORT y);
 
 	// Геттеры
 	SHORT getCenterX() { return m_centerX; }
