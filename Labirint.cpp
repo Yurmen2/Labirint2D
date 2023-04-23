@@ -1,7 +1,7 @@
 ﻿#include "Labirint.h"
 
 Labirint::Labirint(std::wstring filename)
-    :m_f{ filename }, m_labirint{Constants::y, std::vector<Objects>(Constants::x)}
+    :m_f{ filename }, m_labirint{Constants::z, std::vector<std::vector<Objects>>(Constants::y, std::vector<Objects>(Constants::x))}
 {
     if (!m_f)
     {
@@ -18,42 +18,210 @@ Labirint::Labirint(std::wstring filename)
 
 void Labirint::create()
 {
-    for (int i = 0; i < Constants::y; ++i)
-    {
-        for (int iii = 0; iii < Constants::x; ++iii)
-        {
-            if (i == 0 || i == Constants::y - 1)
-                m_labirint[i][iii] = Objects::WALL;
+    int map_size = Constants::z;
+    int map_mathRoot = square(Constants::z);
+    // Внешний счетчик для определения боковых локаций
+    int n, a;
+    n = a = 1;
+    // Внутренний счетчик для определения боковых локаций, 3 = Внешний_счетчик += 1
+    int nnn, aaa;
+    nnn = aaa = 0;
+    if (map_mathRoot == -1)
+        exit(-1);
 
-            else if(iii == 0 || iii == Constants::x - 1)
-                m_labirint[i][iii] = Objects::WALL;
-            else
-            {
-                m_labirint[i][iii] = static_cast<Objects>(object_id[rand() % 2]);
-            }
-        }   
-     }
-
-    // Закрашивание одиноких проходов без выхода
-    for (int i = 1; i < Constants::y; i++)
+    for (int i = 1; i <= map_size; ++i)
     {
-        for (int iii = 1; iii < Constants::x; iii++)
+        for (int j = 0; j < Constants::y; ++j)
         {
-            if (i >= 1 && i < Constants::y -1 && iii >= 1 && iii < Constants::x - 1)
+            for (int k = 0; k < Constants::x; ++k)
             {
-                if (m_labirint[i - 1][iii] == Objects::WALL && m_labirint[i + 1][iii] == Objects::WALL &&
-                    m_labirint[i][iii - 1] == Objects::WALL && m_labirint[i][iii + 1] == Objects::WALL)
-                    m_labirint[i][iii] = Objects::WALL;
+                // Угловые края карты
+                if (i == 1 || i == map_mathRoot || i == Constants::z + 1 - map_mathRoot || i == Constants::z)
+                {
+                    // Проходы верхний левый угол
+                    if (i == 1 && j == Constants::y - 1 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (i == 1 && j == Constants::y / 2 && k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                    // Проходы верхний правый угол
+                    else if (i == map_mathRoot && j == Constants::y - 1 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (i == map_mathRoot && j == Constants::y / 2 && k == 0)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                    // Проходы нижний левый угол
+                    else if (i == Constants::z + 1 - map_mathRoot && j == 0 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (i == Constants::z + 1 - map_mathRoot && j == Constants::y / 2 && k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                    // Проходы нижний правый угол
+                    else if (i == Constants::z && j == 0 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (i == Constants::z && j == Constants::y / 2 && k == 0)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                    // Заполнение края карты стенами
+                    else if (j == 0 || j == Constants::y - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+                    else if (k == 0 || k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+
+                    // Заполнение остальной части карты
+                    else
+                    {
+                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[1]);
+                    }
+
+                }
+                // Верхние и нижние края карты 
+                else if ((i > 1 && i < map_mathRoot) || (i > (Constants::z + 1 - map_mathRoot) && i << Constants::z))
+                {
+                    // Проходы верхние края
+                    if((i > 1 && i < map_mathRoot) && j == Constants::y / 2 && k == 0 )
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if((i > 1 && i < map_mathRoot) && j == Constants::y / 2 && k == Constants::x -1)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if((i > 1 && i < map_mathRoot) && j == Constants::y - 1 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                    // Проходы нижние края
+                    else if ((i > (Constants::z + 1 - map_mathRoot) && i << Constants::z) && j == Constants::y / 2 && k == 0)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if ((i > (Constants::z + 1 - map_mathRoot) && i << Constants::z) && j == Constants::y / 2 && k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if ((i > (Constants::z + 1 - map_mathRoot) && i << Constants::z) && j == 0 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                    else if (j == 0 || j == Constants::y - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+                    else if (k == 0 || k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+
+                    else
+                    {
+                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[1]);
+                    }
+
+                }
+                // левые края карты
+                else if (i == 1 + (map_mathRoot * n))
+                {
+                    if (j == Constants::y / 2 && k == Constants::x - 1)
+                    {
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        ++nnn;
+                    }
+                    else if (j == 0 && k == Constants::x / 2)
+                    {
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        ++nnn;
+                    }
+                    else if (j == Constants::y - 1 && k == Constants::x / 2)
+                    {
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        ++nnn;
+                    }
+
+                    else if (j == 0 || j == Constants::y - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+                    else if (k == 0 || k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+
+                    else
+                    {
+                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[1]);
+                    }
+
+                    if (nnn == 3)
+                    {
+                        ++n;
+                        nnn = 0;
+                    }
+                }
+                // правые края карты
+                else if (i == map_mathRoot + map_mathRoot * a)
+                {
+                    if (j == Constants::y / 2 && k == 0)
+                    {
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        ++aaa;
+                    }
+                    else if (j == 0 && k == Constants::x / 2)
+                    {
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        ++aaa;
+                    }
+                    else if (j == Constants::y - 1 && k == Constants::x / 2)
+                    {
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        ++aaa;
+                    }
+
+                    else if (j == 0 || j == Constants::y - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+                    else if (k == 0 || k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+
+                    else
+                    {
+                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[1]);
+                    }
+
+                    if (aaa == 3)
+                    {
+                        ++a;
+                        aaa = 0;
+                    }
+                }
+                // Центральные локации, вход в которые со всех 4 сторон
+                else
+                {
+                    if (j == Constants::y / 2 && k == 0)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (j == 0 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (j == Constants::y - 1 && k == Constants::x / 2)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    else if (j == Constants::y / 2 && k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+
+                    else if (j == 0 || j == Constants::y - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+                    else if (k == 0 || k == Constants::x - 1)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+
+                    else
+                    {
+                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[1]);
+                    }
+                }
             }
         }
+
+        // Закрашивание одиноких проходов без выхода
+       /* for (int j = 1; j < Constants::y; ++j)
+        {
+            for (int k = 1; k < Constants::x; k++)
+            {
+                if (j >= 1 && j < Constants::y - 1 && k >= 1 && k < Constants::x - 1)
+                {
+                    if (m_labirint[i - 1][j - 1][k] == Objects::WALL && m_labirint[i - 1][j + 1][k] == Objects::WALL &&
+                        m_labirint[i - 1][j][k - 1] == Objects::WALL && m_labirint[i - 1][j][k + 1] == Objects::WALL)
+                        m_labirint[i - 1][j][k] = Objects::WALL;
+                }
+            }
+        }*/
     }
 }
 
-void Labirint::printMaze(Console& console)
+void Labirint::printMaze(Console& console, int i)
 {
     const CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();
 
-    for (int i = 0; i < Constants::y; ++i)
+    for (int j = 0; j < Constants::y; ++j)
     {
         std::wstring str;
 
@@ -89,7 +257,7 @@ void Labirint::printMaze(Console& console)
         //std::cout << '\n'; 
 
         // Вывод ГОРИЗОНТАЛЬНОЙ ЛИНИИ в первой и последней строке карты ПОСТРОЧНО
-        if (i == 0)
+        if (j == 0)
         {
             // Закругляющая левая верхняя линия
             str = L"\u250c";
@@ -113,11 +281,11 @@ void Labirint::printMaze(Console& console)
         str = L"\u2502";
 
         // Основной вывод лабиринта ПОСТРОЧНО
-        for (int iii = 0; iii < Constants::x; ++iii)
-            str += wstrObject(m_labirint[i][iii]);
+        for (int k = 0; k < Constants::x; ++k)
+            str += wstrObject(m_labirint[i][j][k]);
         // Вертикальная линия
         str += L"\u2502";
-        console.printStrCenter(str, 0, -(console.getCenterY()) + i + ((csbi.dwSize.Y - (Constants::y)) / 2) + 1);
+        console.printStrCenter(str, 0, -(console.getCenterY()) + j + ((csbi.dwSize.Y - (Constants::y)) / 2) + 1);
     }
 }
 
@@ -129,30 +297,34 @@ void Labirint::printPoint(Console& console, Point& p)
     x = -(console.getCenterX()) + p.x + ((csbi.dwSize.X - (Constants::x)) / 2);
     y = -(console.getCenterY()) + p.y + ((csbi.dwSize.Y - (Constants::y)) / 2) + 1;
 
-    console.printStrCenter(wstrObject(m_labirint[p.y][p.x]), x + 2, y);
+    console.printStrCenter(wstrObject(m_labirint[p.z][p.y][p.x]), x + 2, y);
 }
 
 void Labirint::inFile()
 {
-    for (int i = 0;  i < Constants::y; i++)
+    for (int i = 0; i < Constants::z; ++i)
     {
-        for (int iii = 0; iii < Constants::x; iii++)
+        for (int j = 0; j < Constants::y; ++j)
         {
-            m_f << static_cast<char>(m_labirint[i][iii]);
+            for (int k = 0; k < Constants::x; ++k)
+            {
+                m_f << static_cast<char>(m_labirint[i][j][k]);
+            }
+            m_f << "\n";
         }
-        m_f << "\n";
     }
 }
 
 void Labirint::outFile()
 {
-    for (int i = 0; i < Constants::y; i++)
+    for(int i = 0; i < Constants::z; ++i)
+    for (int j = 0; j < Constants::y; ++j)
     {
-        for (int iii = 0; iii < Constants::x; iii++)
+        for (int k = 0; k < Constants::x; ++k)
         {
             char ch;
             m_f >> ch;
-            m_labirint[i][iii] = static_cast<Objects>(ch);
+            m_labirint[i][j][k] = static_cast<Objects>(ch);
         }
     }
 }
@@ -161,7 +333,7 @@ bool Labirint::genNew(Console& console)
 {
     while (true)
     {
-        printMaze(console);
+        printMaze(console, 0);
 
 
         std::wstring str = L"Generate a new maze? Y/N";
@@ -206,90 +378,94 @@ bool Labirint::saveNew(Console& console)
 
 bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
 {
-    while (true)
-    {
+    // Очистка верхней строки, где выводится сообщение пользователю
+    console.clear_zone(1, 36, 0, -Constants::y / 2 - 3);
 
-        if (isLabirintLoaded)
-            printMaze(console);
+    if (isLabirintLoaded)
+    printMaze(console, 0);
 
-        std::wstring str;
-        short clear_zone_size;
-        if (isLabirintLoaded)
-            clear_zone_size = 6;
-        else
-            clear_zone_size = 10;
+    std::wstring str;
+    short clear_zone_size;
+    if (isLabirintLoaded)
+        clear_zone_size = 6;
+    else
+        clear_zone_size = 10;
 
-        short str_size = 20;
-        console.clear_zone(clear_zone_size, str_size, 0, -5 );
+    short str_size = 20;
 
-        // Верхняя линия
-        str = L"\u250c";
-        for (int i = 0; i < str_size; ++i)
+    console.clear_zone(clear_zone_size, str_size, 0, -5);
+
+        while (true)
         {
-            str += L"\u2500";
-        }
-        str += L"\u2510";
-        console.printStrCenter(str, 0, -5);
+            // Верхняя линия
+            str = L"\u250c";
+            for (int i = 0; i < str_size; ++i)
+            {
+                str += L"\u2500";
+            }
+            str += L"\u2510";
+            console.printStrCenter(str, 0, -5);
 
 
-        str = L"\u2502                    \u2502";
-        console.printStrCenter(str, 0, -4);
-
-        str = L"\u2502     Labirint2D     \u2502";
-        console.printStrCenter(str, 0, -3);
-
-        str = L"\u2502                    \u2502";
-        console.printStrCenter(str, 0, -2);
-
-        str = L"\u2502Load maze from file \u2502";
-        console.printStrCenter(str, 0, -1);
-
-        str = L"\u2502    Create maze     \u2502";
-        console.printStrCenter(str, 0, 0);
-
-        if (isLabirintLoaded)
-        {
-            str = L"\u2502 Back to main menu  \u2502";
-            console.printStrCenter(str, 0, 1);
-        }
-        else
-        {
             str = L"\u2502                    \u2502";
-            console.printStrCenter(str, 0, 1);
-        }
+            console.printStrCenter(str, 0, -4);
 
-        // Нижняя линия
-        str = L"\u2514";
-        for (int i = 0; i < str_size; ++i)
-        {
-            str += L"\u2500";
-        }
-        str += L"\u2518";
-        console.printStrCenter(str, 0, 2);
+            str = L"\u2502     Labirint2D     \u2502";
+            console.printStrCenter(str, 0, -3);
 
-        int choice = directInput();
-        switch (choice)
-        {
-        case '1':
-                outFile();
-                return true;
-        case '2':
-            create();
+            str = L"\u2502                    \u2502";
+            console.printStrCenter(str, 0, -2);
 
-            genNew(console);
+            str = L"\u2502Load maze from file \u2502";
+            console.printStrCenter(str, 0, -1);
 
-            saveNew(console);
+            str = L"\u2502    Create maze     \u2502";
+            console.printStrCenter(str, 0, 0);
 
-            return true;
-        case '3':
             if (isLabirintLoaded)
             {
-                printMaze(console);
-                return true;
+                str = L"\u2502 Back to main menu  \u2502";
+                console.printStrCenter(str, 0, 1);
             }
-            break;
+            else
+            {
+                str = L"\u2502                    \u2502";
+                console.printStrCenter(str, 0, 1);
+            }
+
+            // Нижняя линия
+            str = L"\u2514";
+            for (int i = 0; i < str_size; ++i)
+            {
+                str += L"\u2500";
+            }
+            str += L"\u2518";
+            console.printStrCenter(str, 0, 2);
+
+            int choice = directInput();
+            switch (choice)
+            {
+            case '1':
+                outFile();
+                printMaze(console, 0);
+                return true;
+            case '2':
+                create();
+
+                genNew(console);
+
+                saveNew(console);
+
+                return true;
+            case '3':
+                if (isLabirintLoaded)
+                {
+                    printMaze(console, 0);
+                    return true;
+                }
+                break;
+            }
         }
-    }
 }
 
 void Labirint::mainMenu(Console& console, std::wstring& msg)
@@ -346,26 +522,107 @@ void Labirint::mainMenu(Console& console, std::wstring& msg)
         console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
 }
 
+bool Labirint::settingsMenu(Console& console, bool isLabirintLoaded)
+{
+
+    if (isLabirintLoaded)
+        printMaze(console, 0);
+
+    std::wstring wstr;
+    short clear_zone_size;
+    if (isLabirintLoaded)
+        clear_zone_size = 6;
+    else
+        clear_zone_size = 10;
+    short str_size = 20;
+
+    console.clear_zone(clear_zone_size, str_size, 0, -5);
+    while (true)
+    {
+        // Верхняя линия
+        wstr = L"\u250c";
+        for (int i = 0; i < str_size; ++i)
+            wstr += L"\u2500";
+        wstr += L"\u2510";
+        console.printStrCenter(wstr, 0, -5);
+
+        wstr = L"\u2502                    \u2502";
+        console.printStrCenter(wstr, 0, -4);
+
+        wstr = L"\u2502     Labirint2D     \u2502";
+        console.printStrCenter(wstr, 0, -3);
+
+        wstr = L"\u2502                    \u2502";
+        console.printStrCenter(wstr, 0, -2);
+
+        wstr = L"\u2502      map size      \u2502";
+        console.printStrCenter(wstr, 0, -1);
+
+        wstr = L"\u2502 Back to main menu  \u2502";
+        console.printStrCenter(wstr, 0, 0);
+
+        // Нижняя линия
+        wstr = L"\u2514";
+        for (int i = 0; i < str_size; ++i)
+            wstr += L"\u2500";
+
+        wstr += L"\u2518";
+        console.printStrCenter(wstr, 0, 1);
+
+        int choice = directInput();
+        switch (choice)
+        {
+        case '1':
+
+            return true;
+        case '2':
+            if (isLabirintLoaded)
+                 printMaze(console, 0);
+             else
+             {
+                 clear_zone_size = 7;
+                 console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
+             }
+            return true;
+        }
+    }
+}
+
 
 std::wstring Labirint::walk(Console& console,Point& p)
     {
     
     std::wstring msg;
     Keys key;
-
+    int map_mathRoot = square(Constants::z);
     key = static_cast<Keys>(directInput());
 
     if (key == Keys::ARROW_UP)
     {
-        if (m_labirint[p.y - 1][p.x] == Objects::EMPTY)
+        if (m_labirint[p.z][p.y - 1][p.x] == Objects::EMPTY)
         {
-            m_labirint[p.y][p.x] = Objects::EMPTY;
-            printPoint(console, p);
+            if (p.y - 1 == 0)
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
 
-            p.y = p.y - 1;
-            m_labirint[p.y][p.x] = Objects::HERO;
+                p.z -= map_mathRoot;
+                p.y = Constants::y - 2;
+                printMaze(console, p.z);
 
-            printPoint(console, p);
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            else
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                printPoint(console, p);
+
+                p.y = p.y - 1;
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+
+            msg = L"";
         }
         else
         {
@@ -375,15 +632,29 @@ std::wstring Labirint::walk(Console& console,Point& p)
 
     else if (key == Keys::ARROW_LEFT)
     {
-        if (m_labirint[p.y][p.x - 1] == Objects::EMPTY)
+        if (m_labirint[p.z][p.y][p.x - 1] == Objects::EMPTY)
         {
-            m_labirint[p.y][p.x] = Objects::EMPTY;
-            printPoint(console, p);
+            if (p.x - 1 == 0)
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
 
-            p.x = p.x - 1;
-            m_labirint[p.y][p.x] = Objects::HERO;
-            printPoint(console, p);
+                p.z -= 1;
+                p.x = Constants::x - 2;
+                printMaze(console, p.z);
 
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            else
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                printPoint(console, p);
+
+                p.x = p.x - 1;
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            msg = L"";
         }
         else
         {
@@ -393,15 +664,30 @@ std::wstring Labirint::walk(Console& console,Point& p)
 
     else if (key == Keys::ARROW_BACK)
     {
-        if (m_labirint[p.y + 1][p.x] == Objects::EMPTY)
+        if (m_labirint[p.z][p.y + 1][p.x] == Objects::EMPTY)
         {
-            m_labirint[p.y][p.x] = Objects::EMPTY;
-            printPoint(console, p);
+            if (p.y + 1 == Constants::y - 1)
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+
+                p.z += map_mathRoot;
+                p.y = 1;
+                printMaze(console, p.z);
+
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            else
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                printPoint(console, p);
 
 
-            p.y = p.y + 1;
-            m_labirint[p.y][p.x] = Objects::HERO;
-            printPoint(console, p);
+                p.y = p.y + 1;
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            msg = L"";
         }
         else
         {
@@ -411,14 +697,29 @@ std::wstring Labirint::walk(Console& console,Point& p)
 
     else if (key == Keys::ARROW_RIGHT)
     {
-        if (m_labirint[p.y][p.x + 1] == Objects::EMPTY)
+        if (m_labirint[p.z][p.y][p.x + 1] == Objects::EMPTY)
         {
-            m_labirint[p.y][p.x] = Objects::EMPTY;
-            printPoint(console, p);
+            if (p.x + 1 == Constants::x - 1)
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                
+                p.z += 1;
+                p.x = 1;
+                printMaze(console, p.z);
 
-            p.x = p.x + 1;
-            m_labirint[p.y][p.x] = Objects::HERO;
-            printPoint(console, p);
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            else
+            {
+                m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                printPoint(console, p);
+
+                p.x = p.x + 1;
+                m_labirint[p.z][p.y][p.x] = Objects::HERO;
+                printPoint(console, p);
+            }
+            msg = L"";
         }
         else
         {

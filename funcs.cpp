@@ -15,7 +15,8 @@ int inputNum(Console& console, const int limit)
     {
         int num;
         std::wstring wstr = L"";
-        console.setCursorPosCenter(1, -Constants::y / 2 - 3);
+        console.setCursorPosCenter(6, -Constants::y / 2 - 3);
+
         std::cin >> num;
         if (std::cin.fail())
         {
@@ -23,13 +24,14 @@ int inputNum(Console& console, const int limit)
             std::cin.ignore(32767, '\n');
             wstr = L"Incorrect enter. Retry again.";
             console.printStrCenter(wstr, 0, -Constants::y / 2 - 2);
+            console.clear_zone(1, 4, 8, -Constants::y / 2 - 3);
         }
         else if (limit > 0)
         {
             if (num >= 0 && num <= limit)
             {
                 std::cin.ignore(32767, '\n');
-                console.clear_zone(1, 5, 1, -Constants::y / 2 - 3);
+                console.clear_zone(1, 12, 6, -Constants::y / 2 - 3);
                 return num;
             }
             else
@@ -37,13 +39,13 @@ int inputNum(Console& console, const int limit)
                 std::cin.ignore(32767, '\n');
                 wstr = L"Incorrect enter. Retry again.";
                 console.printStrCenter(wstr, 0, -Constants::y / 2 - 2);
-
+                console.clear_zone(1, 4, 8, -Constants::y / 2 - 3);
             }
         }
         else if (num >= 0)
         {
             std::cin.ignore(32767, '\n');
-            console.clear_zone(1, 5, 1, -Constants::y / 2 - 3);
+            console.clear_zone(1, 12, 6, -Constants::y / 2 - 3);
             return num;
 
         }
@@ -52,7 +54,7 @@ int inputNum(Console& console, const int limit)
             std::cin.ignore(32767, '\n');
             wstr = L"Incorrect enter. Retry again.";
             console.printStrCenter(wstr, 0, -Constants::y / 2 - 2);
-
+            console.clear_zone(1, 4, 8, -Constants::y / 2 - 3);
         }
     }
 }
@@ -60,22 +62,35 @@ int inputNum(Console& console, const int limit)
 void inputPoint(Console& console, Point& point)
 {
     std::wstring wstr;
-    wstr = L"x:";
-    console.printStrCenter(wstr, 0, -Constants::y / 2 - 3);
+   
 
-    point.x = inputNum(console);
-    --point.x;
+    while (true)
+    {
+        wstr = L"x(1 - " + std::to_wstring(Constants::x - 1) + L"):";
+        console.printStrCenter(wstr, 0, -Constants::y / 2 - 3);
 
+        point.x = inputNum(console, Constants::x - 1);
+        if (point.x > 0)
+        {
+            --point.x;
+            break;
+        }
+    }
     console.clear_zone(2, 30, 0, -Constants::y / 2 - 3);
 
-    wstr =  L"y:";
-    console.printStrCenter(wstr, 0, -Constants::y / 2 - 3);
-
-    point.y = inputNum(console);
-    --point.y;
-
+    while (true)
+    {
+        wstr = L"y(1 - " + std::to_wstring(Constants::y - 1) + L"):";
+        console.printStrCenter(wstr, 0, -Constants::y / 2 - 3);
+        point.y = inputNum(console, Constants::y - 1);
+        if (point.y > 0)
+        {
+            --point.y;
+            break;
+        }
+    }
     console.clear_zone(2, 30, 0, -Constants::y / 2 - 3);
-
+    point.z = 0;
 }
 
 
@@ -91,9 +106,18 @@ std::wstring wstrObject(Objects& object)
         wstrObject = L" ";
         break;
     case Objects::HERO:
-        wstrObject = L"*";
+        wstrObject = L"\u263a";
         break;
     }
 
     return wstrObject;
+}
+
+int square(int num)
+{
+    int sqNum = sqrt(num);
+    if (sqNum * sqNum == num)
+        return sqNum;
+    else
+        return -1;
 }

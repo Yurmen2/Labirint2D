@@ -8,7 +8,7 @@
 class Labirint
 {
 private:
-    std::vector<std::vector<Objects>> m_labirint;
+    std::vector<std::vector<std::vector<Objects>>> m_labirint;
     std::fstream m_f;
 
 public:
@@ -19,13 +19,13 @@ public:
     void create();
 
     // Вывод изображения лабиринта
-    void printMaze(Console& console);
+    void printMaze(Console& console, int i);
 
     // Вывод одной точки лабиринта
     void printPoint(Console& console, Point& p);
 
     // Установить определенной точке в лабиринте обьект
-    void setPoint(const Point& p, const Objects object) { m_labirint[p.y][p.x] = object; }
+    void setPoint(const Point& p, const Objects object) { m_labirint[p.z][p.y][p.x] = object; }
 
     // Записать данные лабиринта в файл
     void inFile();
@@ -43,6 +43,9 @@ public:
     
     // Отображает основное меню 
     void mainMenu(Console& console, std::wstring& msg);
+
+    // Меню настроек
+    bool settingsMenu(Console& console, bool isLabirintLoaded);
 
     // Позволяет передвигаться на стрелочки по лабиринту
     std::wstring walk(Console& console, Point& p);

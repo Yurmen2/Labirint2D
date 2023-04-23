@@ -1,5 +1,3 @@
-// Labirint - Программа, создающая 2д лабиринт в двумерном массиве.
-
 #include <locale>
 #include <time.h>
 #include "Labirint.h"
@@ -47,7 +45,7 @@ int main()
                 bool isLabirintPrint = false;
                 if (!isLabirintPrint)
                 {
-                    labirint.printMaze(console);
+                    labirint.printMaze(console, 0);
                     isLabirintPrint = true;
                 }
                 Point point {};
@@ -57,11 +55,8 @@ int main()
                 labirint.printPoint(console, point);
                 while (true)
                 {
-                    if (msg.length() > 1)
-                    {
-                        console.clear_zone(1, 30, 0, -Constants::y / 2 - 3);
-                        console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
-                    }
+                    console.clear_zone(1, 30, 0, -Constants::y / 2 - 3);
+                    console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
 
 
                     msg = labirint.walk(console, point);
@@ -82,6 +77,7 @@ int main()
            msg = L"";
            break;
         case '3':
+            labirint.settingsMenu(console, isLabirintLoaded);
             break;
         case '4':
             CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();

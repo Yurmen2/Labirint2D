@@ -4,8 +4,12 @@
 
 namespace Constants
 {
+    // Максимальные значения x, y, === Зависят от буфера консоли
+    // Значением z может быть только квадратный корень: 9, 16, 25 и тд
+
 	const short y = 40;
 	const short x = 110;
+    const short z = 16;
 }
 
 enum class Keys
@@ -35,4 +39,5 @@ struct Point
 {
     short x;
     short y;
+    short z;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <cmath>
 #include <conio.h>
 #include "other.h"
 #include "ConsoleApi.h"
@@ -16,4 +17,7 @@ void inputPoint(Console& console, Point& point);
 
 // Возвращает символ объекта
 std::wstring wstrObject(Objects& object);
+
+// Возвращает квадратный корень числа, возвращает -1 если корень не квадратный. Требуется в генерации лабиринта
+int square(int num);
 
