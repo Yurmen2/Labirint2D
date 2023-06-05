@@ -3,6 +3,8 @@
 #include "Labirint.h"
 #include "ConsoleApi.h"
 
+MapSize mapSize{ 40, 110, 100 };
+
 int main()
 {   
     _wsetlocale(LC_ALL, L"en-US.UTF8");
@@ -31,7 +33,6 @@ int main()
     backToMenu:
     while (true)
     {
-
         labirint.mainMenu(console, msg);
 
         char choice = directInput();
@@ -42,31 +43,26 @@ int main()
                 msg = L"To start, load the maze in Maze menu";
             else
             {
-                bool isLabirintPrint = false;
-                if (!isLabirintPrint)
-                {
-                    labirint.printMaze(console, 0);
-                    isLabirintPrint = true;
-                }
+                labirint.printMaze(console, 0);
+
                 Point point {};
                 inputPoint(console, point);
 
                 labirint.setPoint(point, Objects::HERO);
                 labirint.printPoint(console, point);
+                
                 while (true)
                 {
-                    console.clear_zone(1, 30, 0, -Constants::y / 2 - 3);
-                    console.printStrCenter(msg, 0, -Constants::y / 2 - 3);
+                    console.clear_zone(1, 30, 0, -mapSize.y / 2 - 3);
+                    console.printStrCenter(msg, 0, -mapSize.y / 2 - 3);
 
 
                     msg = labirint.walk(console, point);
                     if (msg == L"esc")
                     {
                         msg = L"";
-                        console.clear_zone(1, 30, 0, -Constants::y / 2 - 3);
+                        console.clear_zone(109, 39, 0, 0);
                         labirint.setPoint(point, Objects::EMPTY);
-                        labirint.printPoint(console, point);
-                        isLabirintPrint = false;
                         goto backToMenu;
                     }
                 }
@@ -77,7 +73,8 @@ int main()
            msg = L"";
            break;
         case '3':
-            labirint.settingsMenu(console, isLabirintLoaded);
+            labirint.settingsMenu(console);
+            isLabirintLoaded = false;
             break;
         case '4':
             CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();

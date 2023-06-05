@@ -45,7 +45,7 @@ public:
     void mainMenu(Console& console, std::wstring& msg);
 
     // Меню настроек
-    bool settingsMenu(Console& console, bool isLabirintLoaded);
+    bool settingsMenu(Console& console);
 
     // Позволяет передвигаться на стрелочки по лабиринту
     std::wstring walk(Console& console, Point& p);

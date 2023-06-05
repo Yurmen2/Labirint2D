@@ -9,7 +9,7 @@ namespace Constants
 
 	const short y = 40;
 	const short x = 110;
-    const short z = 16;
+    const short z = 9;
 }
 
 enum class Keys
@@ -23,15 +23,15 @@ enum class Keys
 
 enum class Objects
 {
-    WALL,
     EMPTY,
+    WALL,
     HERO,
 };
 
 static int object_id[]
 {
-    to_int(Objects::WALL),
     to_int(Objects::EMPTY),
+    to_int(Objects::WALL),
     to_int(Objects::HERO),
 };
 
@@ -39,5 +39,12 @@ struct Point
 {
     short x;
     short y;
+    short z;
+};
+
+struct MapSize
+{
+    short y;
+    short x;
     short z;
 };
