@@ -11,7 +11,7 @@ char directInput()
     return ch;
 }
 
-int inputNum(Console& console, short offsetX, short offsetY, const int limit)
+int inputNum(Console& console, short offsetX, short offsetY, const int limit, const int min)
 {
     while (true)
     {
@@ -28,6 +28,24 @@ int inputNum(Console& console, short offsetX, short offsetY, const int limit)
             console.printStrCenter(wstr, 0, -mapSize.y / 2 - 4);
             console.clear_zone(1, 4, offsetX + 2, offsetY);
         }
+
+        else if(limit > 0 && min > 0)
+        {
+            if (num > 0 && num >= min && num <= limit)
+            {
+                std::cin.ignore(32767, '\n');
+                console.clear_zone(1, 30, 0, -mapSize.y / 2 - 4);
+                return num;
+            }
+            else
+            {
+                std::cin.ignore(32767, '\n');
+                wstr = L"Incorrect enter. Retry again.";
+                console.printStrCenter(wstr, 0, -mapSize.y / 2 - 4);
+                console.clear_zone(1, 4, offsetX + 2, offsetY);
+            }
+        }
+
         else if (limit > 0)
         {
             if (num > 0 && num <= limit)
@@ -44,6 +62,24 @@ int inputNum(Console& console, short offsetX, short offsetY, const int limit)
                 console.clear_zone(1, 4, offsetX + 2, offsetY);
             }
         }
+
+        else if (min > 0)
+        {
+            if (num > 0 && num >= min)
+            {
+                std::cin.ignore(32767, '\n');
+                console.clear_zone(1, 30, 0, -mapSize.y / 2 - 4);
+                return num;
+            }
+            else
+            {
+                std::cin.ignore(32767, '\n');
+                wstr = L"Incorrect enter. Retry again.";
+                console.printStrCenter(wstr, 0, -mapSize.y / 2 - 4);
+                console.clear_zone(1, 4, offsetX + 2, offsetY);
+            }
+        }
+
         else if (num > 0)
         {
             std::cin.ignore(32767, '\n');
@@ -51,6 +87,7 @@ int inputNum(Console& console, short offsetX, short offsetY, const int limit)
             return num;
 
         }
+
         else
         {
             std::cin.ignore(32767, '\n');

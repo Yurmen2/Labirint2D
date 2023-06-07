@@ -30,6 +30,9 @@ int main()
     
     console.clear_zone(1, 30, -(console.getCenterX()) + 15, -(console.getCenterY()));
 
+    // режим игры
+    SHORT mode;
+
     backToMenu:
     while (true)
     {
@@ -43,33 +46,69 @@ int main()
                 msg = L"To start, load the maze in Maze menu";
             else
             {
+                console.clear_zone(109, 39, 0, 0);
                 labirint.printMaze(console, 0);
 
-                Point point {};
-                inputPoint(console, point);
-
-                labirint.setPoint(point, Objects::HERO);
-                labirint.printPoint(console, point);
-                
-                while (true)
+                if (mode == 1)
                 {
-                    console.clear_zone(1, 30, 0, -mapSize.y / 2 - 3);
-                    console.printStrCenter(msg, 0, -mapSize.y / 2 - 3);
+                    Point point{};
+                    inputPoint(console, point);
 
+                    labirint.setPoint(point, Objects::HERO);
+                    labirint.printPoint(console, point);
 
-                    msg = labirint.walk(console, point);
-                    if (msg == L"esc")
+                    while (true)
                     {
-                        msg = L"";
-                        console.clear_zone(109, 39, 0, 0);
-                        labirint.setPoint(point, Objects::EMPTY);
-                        goto backToMenu;
+                        console.clear_zone(1, 30, 0, -mapSize.y / 2 - 3);
+                        console.printStrCenter(msg, 0, -mapSize.y / 2 - 3);
+
+
+                        msg = labirint.walk(console, point);
+                        if (msg == L"esc")
+                        {
+                            msg = L"";
+                            console.clear_zone(109, 39, 0, 0);
+                            labirint.setPoint(point, Objects::EMPTY);
+                            goto backToMenu;
+                        }
+                    }
+                }
+                else if (mode == 2)
+                {
+                    goto backToMenu;
+                }
+                else if (mode == 3)
+                {
+                    Point point {} ;
+                    point.x = rand() % (mapSize.x - 1);
+                    point.y = rand() % (mapSize.y - 1);
+                    point.z = 0;
+
+                    labirint.setPoint(point, Objects::HERO);
+                    labirint.printPoint(console, point);
+
+                    while (true)
+                    {
+                        console.clear_zone(1, 30, 0, -mapSize.y / 2 - 3);
+                        console.printStrCenter(msg, 0, -mapSize.y / 2 - 3);
+
+
+                        msg = labirint.walk(console, point);
+                        if (msg == L"esc")
+                        {
+                            msg = L"";
+                            console.clear_zone(109, 39, 0, 0);
+                            labirint.setPoint(point, Objects::EMPTY);
+                            goto backToMenu;
+                        }
                     }
                 }
             }
             break;
         case '2':
-           isLabirintLoaded = labirint.mazeMenu(console, isLabirintLoaded);
+            mode = labirint.modeMenu(console);
+           
+           isLabirintLoaded = labirint.mazeMenu(console, isLabirintLoaded, mode);
            msg = L"";
            break;
         case '3':

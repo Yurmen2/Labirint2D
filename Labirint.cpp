@@ -18,204 +18,232 @@ Labirint::Labirint(std::wstring filename)
     }
 }
 
-void Labirint::create()
+void Labirint::create(SHORT mode)
 {
     int map_size = mapSize.z;
     int map_mathRoot = square(mapSize.z);
+
     // Внешний счетчик для определения боковых локаций
     int n, a;
     n = a = 1;
-    // Внутренний счетчик для определения боковых локаций, 3 - Внешний_счетчик += 1
+
+    // Внутренний счетчик для определения боковых локаций, 3 -- Внешний_счетчик += 1
     int nnn, aaa;
     nnn = aaa = 0;
     if (map_mathRoot == -1)
         exit(-1);
 
-    for (int i = 1; i <= map_size; ++i)
+    if (mode == 1)
     {
-        for (int j = 0; j < mapSize.y; ++j)
+        for (int i = 1; i <= map_size; ++i)
         {
-            for (int k = 0; k < mapSize.x; ++k)
+            for (int j = 0; j < mapSize.y; ++j)
             {
-                // Угловые края карты
-                if (i == 1 || i == map_mathRoot || i == mapSize.z + 1 - map_mathRoot || i == mapSize.z)
+                for (int k = 0; k < mapSize.x; ++k)
                 {
-                    // Проходы верхний левый угол
-                    if (i == 1 && j == mapSize.y - 1 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (i == 1 && j == mapSize.y / 2 && k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                    // Угловые края карты
+                    if (i == 1 || i == map_mathRoot || i == mapSize.z + 1 - map_mathRoot || i == mapSize.z)
+                    {
+                        // Проходы верхний левый угол
+                        if (i == 1 && j == mapSize.y - 1 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (i == 1 && j == mapSize.y / 2 && k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
 
-                    // Проходы верхний правый угол
-                    else if (i == map_mathRoot && j == mapSize.y - 1 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (i == map_mathRoot && j == mapSize.y / 2 && k == 0)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        // Проходы верхний правый угол
+                        else if (i == map_mathRoot && j == mapSize.y - 1 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (i == map_mathRoot && j == mapSize.y / 2 && k == 0)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
 
-                    // Проходы нижний левый угол
-                    else if (i == mapSize.z + 1 - map_mathRoot && j == 0 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (i == mapSize.z + 1 - map_mathRoot && j == mapSize.y / 2 && k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        // Проходы нижний левый угол
+                        else if (i == mapSize.z + 1 - map_mathRoot && j == 0 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (i == mapSize.z + 1 - map_mathRoot && j == mapSize.y / 2 && k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
 
-                    // Проходы нижний правый угол
-                    else if (i == mapSize.z && j == 0 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (i == mapSize.z && j == mapSize.y / 2 && k == 0)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        // Проходы нижний правый угол
+                        else if (i == mapSize.z && j == 0 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (i == mapSize.z && j == mapSize.y / 2 && k == 0)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
 
-                    // Заполнение края карты стенами
-                    else if (j == 0 || j == mapSize.y - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-                    else if (k == 0 || k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
+                        // Заполнение края карты стенами
+                        else if (j == 0 || j == mapSize.y - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+                        else if (k == 0 || k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
 
-                    // Заполнение остальной части карты
+                        // Заполнение остальной части карты
+                        else
+                        {
+                            m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
+                        }
+
+                    }
+                    // Верхние и нижние края карты 
+                    else if ((i > 1 && i < map_mathRoot) || (i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z))
+                    {
+                        // Проходы верхние края
+                        if ((i > 1 && i < map_mathRoot) && j == mapSize.y / 2 && k == 0)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if ((i > 1 && i < map_mathRoot) && j == mapSize.y / 2 && k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if ((i > 1 && i < map_mathRoot) && j == mapSize.y - 1 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                        // Проходы нижние края
+                        else if ((i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z) && j == mapSize.y / 2 && k == 0)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if ((i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z) && j == mapSize.y / 2 && k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if ((i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z) && j == 0 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+
+                        else if (j == 0 || j == mapSize.y - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+                        else if (k == 0 || k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+
+                        else
+                        {
+                            m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
+                        }
+
+                    }
+                    // левые края карты
+                    else if (i == 1 + (map_mathRoot * n))
+                    {
+                        if (j == mapSize.y / 2 && k == mapSize.x - 1)
+                        {
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                            ++nnn;
+                        }
+                        else if (j == 0 && k == mapSize.x / 2)
+                        {
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                            ++nnn;
+                        }
+                        else if (j == mapSize.y - 1 && k == mapSize.x / 2)
+                        {
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                            ++nnn;
+                        }
+
+                        else if (j == 0 || j == mapSize.y - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+                        else if (k == 0 || k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+
+                        else
+                        {
+                            m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
+                        }
+
+                        if (nnn == 3)
+                        {
+                            ++n;
+                            nnn = 0;
+                        }
+                    }
+                    // правые края карты
+                    else if (i == map_mathRoot + map_mathRoot * a)
+                    {
+                        if (j == mapSize.y / 2 && k == 0)
+                        {
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                            ++aaa;
+                        }
+                        else if (j == 0 && k == mapSize.x / 2)
+                        {
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                            ++aaa;
+                        }
+                        else if (j == mapSize.y - 1 && k == mapSize.x / 2)
+                        {
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                            ++aaa;
+                        }
+
+                        else if (j == 0 || j == mapSize.y - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+                        else if (k == 0 || k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+
+                        else
+                        {
+                            m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
+                        }
+
+                        if (aaa == 3)
+                        {
+                            ++a;
+                            aaa = 0;
+                        }
+                    }
+                    // Центральные локации, вход в которые со всех 4 сторон
                     else
                     {
-                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
-                    }
+                        if (j == mapSize.y / 2 && k == 0)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (j == 0 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (j == mapSize.y - 1 && k == mapSize.x / 2)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
+                        else if (j == mapSize.y / 2 && k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::EMPTY;
 
+
+                        else if (j == 0 || j == mapSize.y - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+                        else if (k == 0 || k == mapSize.x - 1)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
+
+                        else
+                        {
+                            m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
+                        }
+                    }
                 }
-                // Верхние и нижние края карты 
-                else if ((i > 1 && i < map_mathRoot) || (i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z))
+            }
+
+            // Закрашивание одиноких проходов без выхода
+           /* for (int j = 1; j < mapSize.y; ++j)
+            {
+                for (int k = 1; k < mapSize.x; k++)
                 {
-                    // Проходы верхние края
-                    if((i > 1 && i < map_mathRoot) && j == mapSize.y / 2 && k == 0 )
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if((i > 1 && i < map_mathRoot) && j == mapSize.y / 2 && k == mapSize.x -1)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if((i > 1 && i < map_mathRoot) && j == mapSize.y - 1 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-
-                    // Проходы нижние края
-                    else if ((i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z) && j == mapSize.y / 2 && k == 0)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if ((i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z) && j == mapSize.y / 2 && k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if ((i > (mapSize.z + 1 - map_mathRoot) && i << mapSize.z) && j == 0 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-
-                    else if (j == 0 || j == mapSize.y - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-                    else if (k == 0 || k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-
-                    else
+                    if (j >= 1 && j < mapSize.y - 1 && k >= 1 && k < mapSize.x - 1)
                     {
-                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
-                    }
-
-                }
-                // левые края карты
-                else if (i == 1 + (map_mathRoot * n))
-                {
-                    if (j == mapSize.y / 2 && k == mapSize.x - 1)
-                    {
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                        ++nnn;
-                    }
-                    else if (j == 0 && k == mapSize.x / 2)
-                    {
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                        ++nnn;
-                    }
-                    else if (j == mapSize.y - 1 && k == mapSize.x / 2)
-                    {
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                        ++nnn;
-                    }
-
-                    else if (j == 0 || j == mapSize.y - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-                    else if (k == 0 || k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-
-                    else
-                    {
-                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
-                    }
-
-                    if (nnn == 3)
-                    {
-                        ++n;
-                        nnn = 0;
+                        if (m_labirint[i - 1][j - 1][k] == Objects::WALL && m_labirint[i - 1][j + 1][k] == Objects::WALL &&
+                            m_labirint[i - 1][j][k - 1] == Objects::WALL && m_labirint[i - 1][j][k + 1] == Objects::WALL)
+                            m_labirint[i - 1][j][k] = Objects::WALL;
                     }
                 }
-                // правые края карты
-                else if (i == map_mathRoot + map_mathRoot * a)
-                {
-                    if (j == mapSize.y / 2 && k == 0)
-                    {
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                        ++aaa;
-                    }
-                    else if (j == 0 && k == mapSize.x / 2)
-                    {
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                        ++aaa;
-                    }
-                    else if (j == mapSize.y - 1 && k == mapSize.x / 2)
-                    {
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                        ++aaa;
-                    }
+            }*/
+        }
+    }
+    else if (mode == 2)
+    {
 
-                    else if (j == 0 || j == mapSize.y - 1)
+    }
+    else if (mode == 3)
+    {
+        for (int i = 1; i < 2; ++i)
+        {
+            for (int j = 0; j < mapSize.y; ++j)
+            {
+                for (int k = 0; k < mapSize.x; ++k)
+                {
+                    if (j == 0 || j == mapSize.y - 1)
                         m_labirint[i - 1][j][k] = Objects::WALL;
                     else if (k == 0 || k == mapSize.x - 1)
                         m_labirint[i - 1][j][k] = Objects::WALL;
-
+                    
                     else
-                    {
                         m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
-                    }
-
-                    if (aaa == 3)
-                    {
-                        ++a;
-                        aaa = 0;
-                    }
-                }
-                // Центральные локации, вход в которые со всех 4 сторон
-                else
-                {
-                    if (j == mapSize.y / 2 && k == 0)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (j == 0 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (j == mapSize.y - 1 && k == mapSize.x / 2)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-                    else if (j == mapSize.y / 2 && k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::EMPTY;
-
-
-                    else if (j == 0 || j == mapSize.y - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-                    else if (k == 0 || k == mapSize.x - 1)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-
-                    else
-                    {
-                        m_labirint[i - 1][j][k] = static_cast<Objects>(object_id[0]);
-                    }
                 }
             }
         }
-
-        // Закрашивание одиноких проходов без выхода
-       /* for (int j = 1; j < mapSize.y; ++j)
-        {
-            for (int k = 1; k < mapSize.x; k++)
-            {
-                if (j >= 1 && j < mapSize.y - 1 && k >= 1 && k < mapSize.x - 1)
-                {
-                    if (m_labirint[i - 1][j - 1][k] == Objects::WALL && m_labirint[i - 1][j + 1][k] == Objects::WALL &&
-                        m_labirint[i - 1][j][k - 1] == Objects::WALL && m_labirint[i - 1][j][k + 1] == Objects::WALL)
-                        m_labirint[i - 1][j][k] = Objects::WALL;
-                }
-            }
-        }*/
     }
 }
 
@@ -339,7 +367,7 @@ void Labirint::outFile()
     }
 }
 
-bool Labirint::genNew(Console& console)
+bool Labirint::genNew(Console& console, SHORT mode)
 {
     while (true)
     {
@@ -355,7 +383,7 @@ bool Labirint::genNew(Console& console)
         switch (ch)
         {
         case 'Y':
-            create();
+            create(mode);
             console.clear_zone(1, str_size, 0, -mapSize.y / 2 - 3);
             break;
         case 'N':
@@ -369,6 +397,8 @@ bool Labirint::saveNew(Console& console)
 {
     while (true)
     {
+        printMaze(console, 0);
+
         std::wstring str = L"Save maze in file? Y/N";
         console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
 
@@ -386,7 +416,65 @@ bool Labirint::saveNew(Console& console)
     }
 }
 
-bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
+SHORT Labirint::modeMenu(Console& console)
+{
+    short clear_zone_size = 12;
+    short str_size = 35;
+
+    console.clear_zone(clear_zone_size, str_size, 0, -5);
+
+    // Верхняя линия
+    std::wstring str = L"\u250c";
+    for (int i = 0; i < str_size; ++i)
+    {
+        str += L"\u2500";
+    }
+    str += L"\u2510";
+    console.printStrCenter(str, 0, -5);
+
+
+    str = L"\u2502                                   \u2502";
+    console.printStrCenter(str, 0, -4);
+
+    str = L"\u2502            Labirint2D             \u2502";
+    console.printStrCenter(str, 0, -3);
+
+    str = L"\u2502                                   \u2502";
+    console.printStrCenter(str, 0, -2);
+
+    str = L"\u2502 1 - Empty location with aisles    \u2502";
+    console.printStrCenter(str, 0, -1);
+
+    str = L"\u2502 2 - Maze                          \u2502";
+    console.printStrCenter(str, 0, 0);
+
+    str = L"\u2502 3 - Snake                         \u2502";
+    console.printStrCenter(str, 0, 1);
+
+    str = L"\u2502 Select game mode:                 \u2502";
+    console.printStrCenter(str, 0, 2);
+
+    str = L"\u2502                                   \u2502";
+    console.printStrCenter(str, 0, 3);
+
+    // Нижняя линия
+    str = L"\u2514";
+    for (int i = 0; i < str_size; ++i)
+    {
+        str += L"\u2500";
+    }
+    str += L"\u2518";
+    console.printStrCenter(str, 0, 3);
+
+    SHORT mode;
+    mode = inputNum(console, 1, 2, 3);
+
+    console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
+
+    return mode;
+}
+
+bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded, SHORT mode)
 {
     // Очистка верхней строки, где выводится сообщение пользователю
     console.clear_zone(1, 36, 0, -mapSize.y / 2 - 3);
@@ -425,16 +513,11 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
             str = L"\u2502    Create maze     \u2502";
             console.printStrCenter(str, 0, 0);
 
-            if (isLabirintLoaded)
-            {
-                str = L"\u2502 Back to main menu  \u2502";
-                console.printStrCenter(str, 0, 1);
-            }
-            else
-            {
-                str = L"\u2502                    \u2502";
-                console.printStrCenter(str, 0, 1);
-            }
+            str = L"\u2502 Back to main menu  \u2502";
+            console.printStrCenter(str, 0, 1);
+
+            str = L"\u2502                    \u2502";
+            console.printStrCenter(str, 0, 2);
 
             // Нижняя линия
             str = L"\u2514";
@@ -443,7 +526,7 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
                 str += L"\u2500";
             }
             str += L"\u2518";
-            console.printStrCenter(str, 0, 2);
+            console.printStrCenter(str, 0, 3);
 
             int choice = directInput();
             switch (choice)
@@ -451,18 +534,35 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded)
             case '1':
                 outFile();
                 printMaze(console, 0);
+                
+                str = L"Press any key to continue///";
+                console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
+
+                directInput();
+
+                console.clear_zone(109, 39, 0, 0);
+
+
                 return true;
             case '2':
 
                 console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
 
-                create();
+                create(mode);
 
-                genNew(console);
+                if (mode == 2)
+                {
+                    genNew(console, mode);
+                    saveNew(console);
+                }
+                else
+                    printMaze(console, 0);
 
-                saveNew(console);
+                str = L"Press any key to continue///";
+                console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
+                directInput();
 
-                console.clear_zone(mapSize.y + 4, mapSize.x + 2, 0, -mapSize.y / 2 - 2);
+                console.clear_zone(109, 39, 0, 0);
 
                 return true;
             case '3':
@@ -601,7 +701,7 @@ bool Labirint::settingsMenu(Console& console)
                 if (i == 0)
                 {
                     wstr3 = L"\u2502                 Length                  \u2502";
-                    wstr2 = L"\u2502               x(1 - 110):               \u2502";
+                    wstr2 = L"\u2502               x(5 - 110):               \u2502";
                     console.printStrCenter(wstr3, 0, -1);
                     console.printStrCenter(wstr2, 0, 0);
 
@@ -609,7 +709,7 @@ bool Labirint::settingsMenu(Console& console)
                 else if (i == 1)
                 {
                     wstr3 = L"\u2502                 Height                  \u2502";
-                    wstr2 = L"\u2502               y(1 - 40):                \u2502";
+                    wstr2 = L"\u2502               y(5 - 40):                \u2502";
                     console.printStrCenter(wstr3, 0, -1);
                     console.printStrCenter(wstr2, 0, 0);
 
@@ -635,18 +735,24 @@ bool Labirint::settingsMenu(Console& console)
                 console.printStrCenter(wstr, 0, 2);
 
                 if (i == 0)
-                    mapSize.x = inputNum(console, 6, 0, 110);
+                    mapSize.x = inputNum(console, 6, 0, 110, 5);
                 else if (i == 1)
-                    mapSize.y = inputNum(console, 5, 0, 40);
+                    mapSize.y = inputNum(console, 5, 0, 40, 5);
                 else if (i == 2)
                     while(1)
                     {
-                        mapSize.z = inputNum(console, 6, 0, 100);
-                        if (square(mapSize.z) != -1 && mapSize.z != 4 && mapSize.z != 1)
+                        mapSize.z = inputNum(console, 6, 0, 100, 9);
+                        if (square(mapSize.z) != -1)
+                        {
+                            console.clear_zone(1, 30 + 2, 0, -mapSize.y / 2 - 5);
                             break;
+                        }
                         else
-                            console.clear_zone(1, 4, 11, 0);
-
+                        {
+                            wstr = L"Incorrect enter. Retry again.";
+                            console.printStrCenter(wstr, 0, -mapSize.y / 2 - 5);
+                            console.clear_zone(1, 4, 6 + 2, 0);
+                        }
                     }
             }
             console.clear_zone(2, str_size, 0, -1);
@@ -811,6 +917,14 @@ std::wstring Labirint::walk(Console& console,Point& p)
     {
         msg = L"esc";
     }
+
+    return msg;
+}
+
+std::wstring Labirint::slide(Console& console, Point& p)
+{
+    std::wstring msg = L"";
+
 
     return msg;
 }

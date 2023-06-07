@@ -9,7 +9,7 @@
 char directInput();
 
 // получает целочисленного значени€ с обработкой ввода и указанием лимита до какого числа разрешен ввод
-int inputNum(Console& console, short offsetX, short offsetY, const int limit = 0);
+int inputNum(Console& console, short offsetX, short offsetY, const int limit = 0, const int min = 0);
 
 // ¬вести точки дл€ структуры Point(использует inputNum())
 void inputPoint(Console& console, Point& point);

@@ -15,8 +15,11 @@ public:
     
     Labirint(std::wstring filename = L"labirint.maze");
 
-    // создание случайного лабиринта: стены и проходы
-    void create();
+    // создание лабиринта
+    // mode 1 - пуста€ локаци€ с проходами
+    // mode 2 - лабиринт
+    // mode 3 - змейка
+    void create(SHORT mode);
 
     // ¬ывод изображени€ лабиринта
     void printMaze(Console& console, int i);
@@ -35,11 +38,14 @@ public:
 
     // —прашивают пользовател€, нужно ли сгенерировать/сохранить новый лабиринт, возвращает false если выбор сделан
     // –аботают в св€зке с mazeMenu
-    bool genNew(Console& console);
+    bool genNew(Console& console, SHORT mode);
     bool saveNew(Console& console);
 
+    // ћеню выбора режима игры, возвращает номер режима, вли€ет на функцию create
+    SHORT modeMenu(Console& console);
+
     // ќтображает меню генерации лабиринта, возвращает true = лабиринт загружен
-    bool mazeMenu(Console& console, bool isLabirintLoaded);
+    bool mazeMenu(Console& console, bool isLabirintLoaded, SHORT mode);
     
     // ќтображает основное меню 
     void mainMenu(Console& console, std::wstring& msg);
@@ -50,4 +56,6 @@ public:
     // ѕозвол€ет передвигатьс€ на стрелочки по лабиринту
     std::wstring walk(Console& console, Point& p);
 
+    // ѕозвол€ет выбирать направление скольжени€
+    std::wstring slide(Console& console, Point& p);
 };
