@@ -474,7 +474,7 @@ SHORT Labirint::modeMenu(Console& console)
     return mode;
 }
 
-bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded, SHORT mode)
+void Labirint::mazeMenu(Console& console, SHORT mode)
 {
     // Очистка верхней строки, где выводится сообщение пользователю
     console.clear_zone(1, 36, 0, -mapSize.y / 2 - 3);
@@ -486,90 +486,82 @@ bool Labirint::mazeMenu(Console& console, bool isLabirintLoaded, SHORT mode)
 
     console.clear_zone(clear_zone_size, str_size, 0, -5);
 
-        while (true)
+    // Верхняя линия
+    str = L"\u250c";
+    for (int i = 0; i < str_size; ++i)
+    {
+        str += L"\u2500";
+    }
+    str += L"\u2510";
+    console.printStrCenter(str, 0, -5);
+
+
+    str = L"\u2502                    \u2502";
+    console.printStrCenter(str, 0, -4);
+
+    str = L"\u2502     Labirint2D     \u2502";
+    console.printStrCenter(str, 0, -3);
+
+    str = L"\u2502                    \u2502";
+    console.printStrCenter(str, 0, -2);
+
+    str = L"\u2502Load maze from file \u2502";
+    console.printStrCenter(str, 0, -1);
+
+    str = L"\u2502    Create maze     \u2502";
+    console.printStrCenter(str, 0, 0);
+
+    str = L"\u2502 Back to main menu  \u2502";
+    console.printStrCenter(str, 0, 1);
+
+    str = L"\u2502                    \u2502";
+    console.printStrCenter(str, 0, 2);
+
+    // Нижняя линия
+    str = L"\u2514";
+    for (int i = 0; i < str_size; ++i)
+    {
+        str += L"\u2500";
+    }
+    str += L"\u2518";
+    console.printStrCenter(str, 0, 3);
+
+    int choice = directInput();
+    switch (choice)
+    {
+    case '1':
+        outFile();
+        printMaze(console, 0);
+
+        str = L"Press any key to continue///";
+        console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
+
+        directInput();
+
+        console.clear_zone(109, 39, 0, 0);
+    case '2':
+
+        console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
+
+        create(mode);
+
+        if (mode == 2)
         {
-            // Верхняя линия
-            str = L"\u250c";
-            for (int i = 0; i < str_size; ++i)
-            {
-                str += L"\u2500";
-            }
-            str += L"\u2510";
-            console.printStrCenter(str, 0, -5);
-
-
-            str = L"\u2502                    \u2502";
-            console.printStrCenter(str, 0, -4);
-
-            str = L"\u2502     Labirint2D     \u2502";
-            console.printStrCenter(str, 0, -3);
-
-            str = L"\u2502                    \u2502";
-            console.printStrCenter(str, 0, -2);
-
-            str = L"\u2502Load maze from file \u2502";
-            console.printStrCenter(str, 0, -1);
-
-            str = L"\u2502    Create maze     \u2502";
-            console.printStrCenter(str, 0, 0);
-
-            str = L"\u2502 Back to main menu  \u2502";
-            console.printStrCenter(str, 0, 1);
-
-            str = L"\u2502                    \u2502";
-            console.printStrCenter(str, 0, 2);
-
-            // Нижняя линия
-            str = L"\u2514";
-            for (int i = 0; i < str_size; ++i)
-            {
-                str += L"\u2500";
-            }
-            str += L"\u2518";
-            console.printStrCenter(str, 0, 3);
-
-            int choice = directInput();
-            switch (choice)
-            {
-            case '1':
-                outFile();
-                printMaze(console, 0);
-                
-                str = L"Press any key to continue///";
-                console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
-
-                directInput();
-
-                console.clear_zone(109, 39, 0, 0);
-
-
-                return true;
-            case '2':
-
-                console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
-
-                create(mode);
-
-                if (mode == 2)
-                {
-                    genNew(console, mode);
-                    saveNew(console);
-                }
-                else
-                    printMaze(console, 0);
-
-                str = L"Press any key to continue///";
-                console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
-                directInput();
-
-                console.clear_zone(109, 39, 0, 0);
-
-                return true;
-            case '3':
-                console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
-                return true;
-            }
+            genNew(console, mode);
+            saveNew(console);
         }
+        else
+            printMaze(console, 0);
+
+        str = L"Press any key to continue///";
+        console.printStrCenter(str, 0, -mapSize.y / 2 - 3);
+        directInput();
+
+        console.clear_zone(109, 39, 0, 0);
+
+    case '3':
+        console.clear_zone(clear_zone_size, str_size + 2, 0, -5);
+    }
 }
 
 void Labirint::mainMenu(Console& console, std::wstring& msg)
@@ -921,10 +913,570 @@ std::wstring Labirint::walk(Console& console,Point& p)
     return msg;
 }
 
-std::wstring Labirint::slide(Console& console, Point& p)
+void Labirint::snakeGame(Console& console, Point& p)
 {
-    std::wstring msg = L"";
+    int path_direction = rand() % (4 - 1) + 1;
+    // 1 - вперед
+    // 2 - влево
+    // 3 - вниз
+    // 4 - вправо
+
+    int tail_length = 2;
+    Objects tail[99] = { Objects::WALL, Objects::WALL};
+
+    int map_mathRoot = square(mapSize.z);
+
+    setPoint(p, Objects::SNAKE);
+    printPoint(console, p);
+    
+
+    std::future<char> future;
+    time_t prev = time(nullptr);
+    Keys key;
+
+    bool isRotation = false;
+    bool haveRotationPoint = false;
+    bool initializePoints = false;
+    bool startPrintTail = false;
+
+    time_t spawnGrade = time(nullptr);
+    while (true)
+    {
+
+        if (future.valid() && future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+        {
+            key = static_cast<Keys>(future.get());
+
+            if (key == Keys::ARROW_UP)
+            {
+                path_direction = 1;
+                isRotation = true;
+            }
+            else if (key == Keys::ARROW_LEFT)
+            {
+                path_direction = 2;
+                isRotation = true;
+            }
+            else if (key == Keys::ARROW_BACK)
+            {
+                path_direction = 3;
+                isRotation = true;
+            }
+            else if (key == Keys::ARROW_RIGHT)
+            {
+                path_direction = 4;
+                isRotation = true;
+            }
+            else if (key == Keys::ESC)
+            {
+                console.clear_zone(109, 39, 0, 0);
+                break;
+            }
+
+            future = std::async(std::launch::async, directInput);
+        }
+
+        time_t now = time(nullptr);
+        int tail_moved = 0;
+        static Point rotation = p;
+        static Point clear_tail = rotation;
+        Point pTail = p;
+        if (now > prev)
+        {
+            if (now > spawnGrade + 10)
+            {
+                Point grade = p;
+                grade.y = rand() % mapSize.y - 1;
+                grade.x = rand() % mapSize.x - 1;
+                m_labirint[grade.z][grade.y][grade.x] = Objects::GRADE;
+                printPoint(console, grade);
+                spawnGrade = now;
+            }
+
+            prev = now;
+            if (path_direction == 1)
+            {
+
+                if (m_labirint[p.z][p.y - 1][p.x] == Objects::WALL)
+                {
+                   /* if (p.y - 1 == 0)
+                    {
+                        m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                        printPoint(console, p);
+
+                        p.y = mapSize.y - 2;
+                        m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                        printPoint(console, p);
+                    }*/
+                        console.clear_zone(3, 11, 0, 0);
+                        std::wstring wstr = L"You died.";
+                        console.printStrCenter(wstr);
+                        directInput();
+                        break;
+                }
+
+                else if (m_labirint[p.z][p.y - 1][p.x] == Objects::EMPTY)
+                {
+                    p.y = p.y - 1;
+                    m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                    printPoint(console, p);
+
+                    pTail = p;
+
+                    if (!isRotation)
+                        tail_moved = 0;
+
+                    if (isRotation)
+                    {
+                        pTail.y += tail_length;
+                        if (!haveRotationPoint)
+                        {
+                            rotation = p;
+                            rotation.y += 1;
+                            
+                            haveRotationPoint = true;
+                        }
+                        
+                        // Переход вверх сделан справа
+                        if (m_labirint[rotation.z][rotation.y][rotation.x + 1] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.x += tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                --clear_tail.x;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+                                
+                                --pTail.y;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y][rotation.x + 1] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+                        
+
+                        // Переход вверх сделан слева
+                        else if (m_labirint[rotation.z][rotation.y][rotation.x - 1] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.x -= tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                ++clear_tail.x;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                --pTail.y;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y][rotation.x - 1] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        pTail.y += tail_length + 1;
+                        m_labirint[pTail.z][pTail.y][pTail.x] = Objects::EMPTY;
+                        printPoint(console, pTail);
+                        pTail.y -= tail_length + 1;
+
+                        for (int i = 0; i < tail_length; ++i)
+                        {
+                            ++pTail.y;
+                            m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                            printPoint(console, pTail);
+                        }
+                    }
+                }
+                
+                else if(m_labirint[p.z][p.y - 1][p.x] == Objects::GRADE)
+                {
+                    ++tail_length;
+                    tail[tail_length] = Objects::WALL;
+                    m_labirint[p.z][p.y - 1][p.x] = Objects::EMPTY;
+                }
+            }
+            else if (path_direction == 2)
+            {
+               
+                if (m_labirint[p.z][p.y][p.x - 1] == Objects::WALL)
+                {
+                    /*if (p.x - 1 == 0)
+                    {
+                        m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                        printPoint(console, p);
+
+                        p.x = mapSize.x - 2;
+                        m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                        printPoint(console, p);
+                    }*/
+                        console.clear_zone(3, 11, 0, 0);
+                        std::wstring wstr = L"You died.";
+                        console.printStrCenter(wstr);
+                        directInput();
+                        break;
+                }
+
+                else if (m_labirint[p.z][p.y][p.x - 1] == Objects::EMPTY)
+                {
+                    p.x = p.x - 1;
+                    m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                    printPoint(console, p);
+
+                    Point pTail = p;
+
+                    if (!isRotation)
+                        tail_moved = 0;
+
+                    if (isRotation)
+                    {
+                        pTail.x += tail_length;
+                        if (!haveRotationPoint)
+                        {
+                            rotation = p;
+                            rotation.x += 1;
+
+                            haveRotationPoint = true;
+                        }
+
+                        // Переход вверх сделан сверху
+                        if (m_labirint[rotation.z][rotation.y - 1][rotation.x] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.y -= tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                ++clear_tail.y;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                --pTail.x;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y - 1][rotation.x] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
 
 
-    return msg;
+                        // Переход вверх сделан снизу
+                        else if (m_labirint[rotation.z][rotation.y + 1][rotation.x] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.y += tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                --clear_tail.y;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                --pTail.x;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y + 1][rotation.x] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        pTail.x += tail_length + 1;
+                        m_labirint[pTail.z][pTail.y][pTail.x] = Objects::EMPTY;
+                        printPoint(console, pTail);
+                        pTail.x -= tail_length + 1;
+
+                        for (int i = 0; i < tail_length; ++i)
+                        {
+                            ++pTail.x;
+                            m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                            printPoint(console, pTail);
+                        }
+                    }
+                }
+            }
+            else if (path_direction == 3)
+            {
+               
+                if (m_labirint[p.z][p.y + 1][p.x] == Objects::WALL)
+                {
+                    /*if (p.y + 1 == mapSize.y - 1)
+                    {
+                        m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                        printPoint(console, p);
+
+                        p.y = 1;
+                        m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                        printPoint(console, p);
+                    }*/
+                        console.clear_zone(3, 11, 0, 0);
+                        std::wstring wstr = L"You died.";
+                        console.printStrCenter(wstr);
+                        directInput();
+                        break;
+                }
+                else if (m_labirint[p.z][p.y + 1][p.x] == Objects::EMPTY)
+                {
+                    p.y = p.y + 1;
+                    m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                    printPoint(console, p);
+
+                    Point pTail = p;
+                    
+                    if (!isRotation)
+                        tail_moved = 0;
+
+                    if (isRotation)
+                    {
+                        pTail.y -= tail_length;
+                        if (!haveRotationPoint)
+                        {
+                            rotation = p;
+                            rotation.y -= 1;
+
+                            haveRotationPoint = true;
+                        }
+
+                        // Переход вверх сделан справа
+                        if (m_labirint[rotation.z][rotation.y][rotation.x + 1] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.x += tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                --clear_tail.x;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                ++pTail.y;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y][rotation.x + 1] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+
+
+                        // Переход вверх сделан слева
+                        else if (m_labirint[rotation.z][rotation.y][rotation.x - 1] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.x -= tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                ++clear_tail.x;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                ++pTail.y;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y][rotation.x - 1] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        pTail.y -= tail_length + 1;
+                        m_labirint[pTail.z][pTail.y][pTail.x] = Objects::EMPTY;
+                        printPoint(console, pTail);
+                        pTail.y += tail_length + 1;
+
+                        for (int i = 0; i < tail_length; ++i)
+                        {
+                            --pTail.y;
+                            m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                            printPoint(console, pTail);
+                        }
+                    }
+                }
+            }
+            else if (path_direction == 4)
+            {
+               
+                if (m_labirint[p.z][p.y][p.x + 1] == Objects::WALL)
+                {
+                   /* if (p.x + 1 == mapSize.x - 1)
+                    {
+                        m_labirint[p.z][p.y][p.x] = Objects::EMPTY;
+                        printPoint(console, p);
+
+                        p.x = 1;
+                        m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                        printPoint(console, p);
+                    }*/
+                        console.clear_zone(3, 11, 0, 0);
+                        std::wstring wstr = L"You died.";
+                        console.printStrCenter(wstr);
+                        directInput();
+                        break;
+                }
+                else if (m_labirint[p.z][p.y][p.x + 1] == Objects::EMPTY)
+                {
+                    p.x = p.x + 1;
+                    m_labirint[p.z][p.y][p.x] = Objects::SNAKE;
+                    printPoint(console, p);
+
+                    Point pTail = p;
+
+                    if (!isRotation)
+                        tail_moved = 0;
+
+                    if (isRotation)
+                    {
+                        pTail.x -= tail_length;
+                        if (!haveRotationPoint)
+                        {
+                            rotation = p;
+                            rotation.x -= 1;
+
+                            haveRotationPoint = true;
+                        }
+
+                        // Переход вверх сделан сверху
+                        if (m_labirint[rotation.z][rotation.y - 1][rotation.x] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.y -= tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                ++clear_tail.y;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                ++pTail.x;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y - 1][rotation.x] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+
+
+                        // Переход вверх сделан снизу
+                        else if (m_labirint[rotation.z][rotation.y + 1][rotation.x] == Objects::WALL)
+                        {
+                            if (!initializePoints)
+                            {
+                                clear_tail = rotation;
+                                clear_tail.y += tail_length + 1;
+                                initializePoints = true;
+                            }
+
+                            ++tail_moved;
+                            for (int i = 0; i < tail_moved; ++i)
+                            {
+                                --clear_tail.y;
+                                m_labirint[clear_tail.z][clear_tail.y][clear_tail.x] = Objects::EMPTY;
+                                printPoint(console, clear_tail);
+
+                                ++pTail.x;
+                                m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                                printPoint(console, pTail);
+                                if (m_labirint[rotation.z][rotation.y + 1][rotation.x] == Objects::EMPTY)
+                                {
+                                    isRotation = false;
+                                    haveRotationPoint = false;
+                                    initializePoints = false;
+                                }
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        pTail.x -= tail_length + 1;
+                        m_labirint[pTail.z][pTail.y][pTail.x] = Objects::EMPTY;
+                        printPoint(console, pTail);
+                        pTail.x += tail_length + 1;
+
+                        for (int i = 0; i < tail_length; ++i)
+                        {
+                            --pTail.x;
+                            m_labirint[pTail.z][pTail.y][pTail.x] = tail[i];
+                            printPoint(console, pTail);
+                        }
+                    }
+                }
+            }
+        }
+        if (!future.valid())
+        {
+            future = std::async(std::launch::async, directInput);
+        }
+    }
 }

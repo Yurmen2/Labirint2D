@@ -1,5 +1,5 @@
 #include <locale>
-#include <time.h>
+#include <ctime>
 #include "Labirint.h"
 #include "ConsoleApi.h"
 
@@ -19,19 +19,18 @@ int main()
     console.cursorHide();
     console.initCenterXY();
 
-    srand(static_cast<unsigned int>(time(NULL)));
+    srand(static_cast<unsigned int>(time(nullptr)));
     rand();
 
     Labirint labirint;
 
-    bool isLabirintLoaded = false;
     std::wstring msg = L"";
     std::wstring str = L"";
     
     console.clear_zone(1, 30, -(console.getCenterX()) + 15, -(console.getCenterY()));
 
     // режим игры
-    SHORT mode;
+    SHORT mode = 0;
 
     backToMenu:
     while (true)
@@ -42,7 +41,7 @@ int main()
         switch (choice)
         {
         case '1':
-            if (!isLabirintLoaded)
+            if (mode == 0)
                 msg = L"To start, load the maze in Maze menu";
             else
             {
@@ -80,40 +79,26 @@ int main()
                 else if (mode == 3)
                 {
                     Point point {} ;
-                    point.x = rand() % (mapSize.x - 1);
-                    point.y = rand() % (mapSize.y - 1);
+                    point.x = rand() % ((mapSize.x - 1) - 1) + 1;
+                    point.y = rand() % ((mapSize.y - 1) - 1) + 1;
                     point.z = 0;
 
-                    labirint.setPoint(point, Objects::HERO);
+                    labirint.setPoint(point, Objects::SNAKE);
                     labirint.printPoint(console, point);
 
-                    while (true)
-                    {
-                        console.clear_zone(1, 30, 0, -mapSize.y / 2 - 3);
-                        console.printStrCenter(msg, 0, -mapSize.y / 2 - 3);
-
-
-                        msg = labirint.walk(console, point);
-                        if (msg == L"esc")
-                        {
-                            msg = L"";
-                            console.clear_zone(109, 39, 0, 0);
-                            labirint.setPoint(point, Objects::EMPTY);
-                            goto backToMenu;
-                        }
-                    }
+                    labirint.snakeGame(console, point);
+                    goto backToMenu;
                 }
             }
             break;
         case '2':
             mode = labirint.modeMenu(console);
            
-           isLabirintLoaded = labirint.mazeMenu(console, isLabirintLoaded, mode);
+           labirint.mazeMenu(console, mode);
            msg = L"";
            break;
         case '3':
             labirint.settingsMenu(console);
-            isLabirintLoaded = false;
             break;
         case '4':
             CONSOLE_SCREEN_BUFFER_INFO csbi = console.getCsbi();

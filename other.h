@@ -26,6 +26,8 @@ enum class Objects
     EMPTY,
     WALL,
     HERO,
+    SNAKE,
+    GRADE,
 };
 
 static int object_id[]

@@ -1,6 +1,8 @@
 #pragma once
 #include <fstream>
 #include <vector>
+#include <future>
+#include <thread>
 #include "funcs.h"
 #include "other.h"
 #include "ConsoleApi.h"
@@ -41,11 +43,11 @@ public:
     bool genNew(Console& console, SHORT mode);
     bool saveNew(Console& console);
 
-    // Меню выбора режима игры, возвращает номер режима, влияет на функцию create
+    // Меню выбора режима игры, возвращает номер режима, влияет на функцию create, возвращает выбранный режим
     SHORT modeMenu(Console& console);
 
     // Отображает меню генерации лабиринта, возвращает true = лабиринт загружен
-    bool mazeMenu(Console& console, bool isLabirintLoaded, SHORT mode);
+    void mazeMenu(Console& console, SHORT mode);
     
     // Отображает основное меню 
     void mainMenu(Console& console, std::wstring& msg);
@@ -56,6 +58,6 @@ public:
     // Позволяет передвигаться на стрелочки по лабиринту
     std::wstring walk(Console& console, Point& p);
 
-    // Позволяет выбирать направление скольжения
-    std::wstring slide(Console& console, Point& p);
+    // Режим игры змейка
+    void snakeGame(Console& console, Point& p);
 };

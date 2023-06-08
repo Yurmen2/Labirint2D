@@ -147,6 +147,11 @@ std::wstring wstrObject(Objects& object)
     case Objects::HERO:
         wstrObject = L"\u263a";
         break;
+    case Objects::SNAKE:
+        wstrObject = L"\u2592";
+        break;
+    case Objects::GRADE:
+        wstrObject = L"*";
     }
 
     return wstrObject;
